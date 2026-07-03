@@ -1,0 +1,11 @@
+ticket_id,subject,description,priority,department
+1,Login Issue,Unable to login after password reset,High,IT
+2,Payment Failed,Credit card payment not processed,Medium,Billing
+3,Refund Request,Customer wants refund for duplicate payment,Low,Billing
+4,System Crash,Application crashes when opening dashboard,High,Engineering
+5,Password Reset,Reset email not received,Low,IT
+6,Bug Report,Unable to upload profile picture,Medium,Engineering
+7,Account Locked,Too many failed login attempts,High,IT
+8,Invoice Missing,Invoice not generated after payment,Medium,Billing
+9,Feature Request,Need dark mode support,Low,Product
+10,Performance Issue,Dashboard loads very slowly,High,Engineering

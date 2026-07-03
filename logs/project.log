@@ -1,0 +1,4 @@
+2026-07-03 14:05:48,881 | INFO | src.data_loader | Loading dataset: data\raw\sample_tickets.csv
+2026-07-03 14:05:48,884 | INFO | src.data_loader | Dataset loaded successfully (10 rows, 5 columns)
+2026-07-03 14:05:55,426 | INFO | src.data_loader | Loading dataset: data\raw\sample_tickets.csv
+2026-07-03 14:05:55,427 | INFO | src.data_loader | Dataset loaded successfully (10 rows, 5 columns)
