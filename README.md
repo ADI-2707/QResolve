@@ -22,6 +22,34 @@ QResolve helps organizations automatically:
 - FastAPI
 - Docker
 
+## Project Structure
+
+```text
+QResolve/
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── docs/
+│
+├── models/
+│
+├── notebook/
+│
+├── src/
+│   ├── config.py
+│   ├── logger.py
+│   ├── utils.py
+│   └── data_loader.py
+│
+├── tests/
+│
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
+
 ## Status
 
 🚧 Under Development
