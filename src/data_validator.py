@@ -14,6 +14,12 @@ REQUIRED_COLUMNS = (
     "department",
 )
 
+VALID_PRIORITIES = {
+    "High",
+    "Medium",
+    "Low",
+}
+
 
 def validate_columns(
     dataframe: pd.DataFrame,
@@ -76,3 +82,30 @@ def validate_duplicate_ticket_ids(dataframe: pd.DataFrame) -> None:
         )
 
     logger.info("No duplicate ticket IDs found.")
+
+
+def validate_priority_values(dataframe: pd.DataFrame) -> None:
+    """
+    Validate that the priority column contains only valid values.
+    """
+
+    invalid_priorities = (
+        dataframe.loc[
+            ~dataframe["priority"].isin(VALID_PRIORITIES),
+            "priority",
+        ]
+        .dropna()
+        .unique()
+    )
+
+    if len(invalid_priorities) > 0:
+        logger.error(
+            "Invalid priority values found: %s",
+            list(invalid_priorities),
+        )
+
+        raise ValueError(
+            f"Invalid priority values: {list(invalid_priorities)}"
+        )
+
+    logger.info("Priority values are valid.")
