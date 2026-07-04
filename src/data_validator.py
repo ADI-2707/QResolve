@@ -143,3 +143,19 @@ def validate_department_values(dataframe: pd.DataFrame) -> None:
         )
 
     logger.info("Department values are valid.")
+
+
+def validate_dataframe(dataframe: pd.DataFrame) -> None:
+    """
+    Run all validation checks on the dataset.
+    """
+
+    logger.info("Starting dataset validation.")
+
+    validate_columns(dataframe)
+    validate_missing_values(dataframe)
+    validate_duplicate_ticket_ids(dataframe)
+    validate_priority_values(dataframe)
+    validate_department_values(dataframe)
+
+    logger.info("Dataset validation completed successfully.")

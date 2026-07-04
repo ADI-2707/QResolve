@@ -7,6 +7,7 @@ from src.data_validator import (
     validate_duplicate_ticket_ids,
     validate_priority_values,
     validate_department_values,
+    validate_dataframe,
 )
 
 
@@ -155,3 +156,38 @@ def test_validate_department_values_fails():
 
     with pytest.raises(ValueError):
         validate_department_values(dataframe)
+
+
+def test_validate_dataframe_passes():
+    dataframe = pd.DataFrame(
+        {
+            "ticket_id": [1, 2],
+            "subject": ["Login", "Payment"],
+            "description": [
+                "Unable to login",
+                "Payment failed",
+            ],
+            "priority": ["High", "Medium"],
+            "department": ["IT", "Billing"],
+        }
+    )
+
+    validate_dataframe(dataframe)
+
+
+def test_validate_dataframe_fails():
+    dataframe = pd.DataFrame(
+        {
+            "ticket_id": [1, 1],
+            "subject": ["Login", "Payment"],
+            "description": [
+                "Unable to login",
+                "Payment failed",
+            ],
+            "priority": ["High", "Medium"],
+            "department": ["IT", "Billing"],
+        }
+    )
+
+    with pytest.raises(ValueError):
+        validate_dataframe(dataframe)
