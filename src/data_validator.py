@@ -6,25 +6,35 @@ from src.logger import get_logger
 
 logger = get_logger(__name__)
 
-REQUIRED_COLUMNS = (
-    "ticket_id",
-    "subject",
-    "description",
-    "priority",
-    "department",
-)
+REQUIRED_COLUMNS = [
+    "Ticket ID",
+    "Ticket Subject",
+    "Ticket Description",
+    "Ticket Priority",
+    "Ticket Type",
+    "Ticket Status",
+]
 
 VALID_PRIORITIES = {
+    "Critical",
     "High",
     "Medium",
     "Low",
 }
 
-VALID_DEPARTMENTS = {
-    "IT",
-    "Billing",
-    "Engineering",
-    "Product",
+VALID_TICKET_TYPES = {
+    "Technical issue",
+    "Billing inquiry",
+    "Cancellation request",
+    "Product inquiry",
+    "Refund request",
+}
+
+VALID_STATUSES = {
+    "Open",
+    "Closed",
+    "Pending",
+    "Pending Customer Response",
 }
 
 
@@ -65,6 +75,7 @@ def validate_missing_values(
 
     if not missing.empty:
         logger.error("Missing values detected:\n%s", missing)
+
         raise ValueError(
             f"Missing values detected:\n{missing}"
         )
@@ -74,80 +85,113 @@ def validate_missing_values(
 
 def validate_duplicate_ticket_ids(dataframe: pd.DataFrame) -> None:
     """
-    Validate that ticket IDs are unique.
+    Validate that Ticket IDs are unique.
     """
 
-    duplicates = dataframe["ticket_id"].duplicated()
+    duplicates = dataframe["Ticket ID"].duplicated()
 
     if duplicates.any():
-        duplicate_ids = dataframe.loc[duplicates, "ticket_id"].tolist()
+        duplicate_ids = dataframe.loc[
+            duplicates,
+            "Ticket ID",
+        ].tolist()
 
-        logger.error("Duplicate ticket IDs found: %s", duplicate_ids)
-
-        raise ValueError(
-            f"Duplicate ticket IDs found: {duplicate_ids}"
+        logger.error(
+            "Duplicate Ticket IDs found: %s",
+            duplicate_ids,
         )
 
-    logger.info("No duplicate ticket IDs found.")
+        raise ValueError(
+            f"Duplicate Ticket IDs found: {duplicate_ids}"
+        )
+
+    logger.info("No duplicate Ticket IDs found.")
 
 
 def validate_priority_values(dataframe: pd.DataFrame) -> None:
     """
-    Validate that the priority column contains only valid values.
+    Validate priority values.
     """
 
-    invalid_priorities = (
+    invalid = (
         dataframe.loc[
-            ~dataframe["priority"].isin(VALID_PRIORITIES),
-            "priority",
+            ~dataframe["Ticket Priority"].isin(VALID_PRIORITIES),
+            "Ticket Priority",
         ]
         .dropna()
         .unique()
     )
 
-    if len(invalid_priorities) > 0:
+    if len(invalid) > 0:
         logger.error(
-            "Invalid priority values found: %s",
-            list(invalid_priorities),
+            "Invalid priority values: %s",
+            list(invalid),
         )
 
         raise ValueError(
-            f"Invalid priority values: {list(invalid_priorities)}"
+            f"Invalid priority values: {list(invalid)}"
         )
 
     logger.info("Priority values are valid.")
 
 
-def validate_department_values(dataframe: pd.DataFrame) -> None:
+def validate_ticket_type_values(dataframe: pd.DataFrame) -> None:
     """
-    Validate that the department column contains only valid values.
+    Validate ticket type values.
     """
 
-    invalid_departments = (
+    invalid = (
         dataframe.loc[
-            ~dataframe["department"].isin(VALID_DEPARTMENTS),
-            "department",
+            ~dataframe["Ticket Type"].isin(VALID_TICKET_TYPES),
+            "Ticket Type",
         ]
         .dropna()
         .unique()
     )
 
-    if len(invalid_departments) > 0:
+    if len(invalid) > 0:
         logger.error(
-            "Invalid department values found: %s",
-            list(invalid_departments),
+            "Invalid ticket types: %s",
+            list(invalid),
         )
 
         raise ValueError(
-            f"Invalid department values: {list(invalid_departments)}"
+            f"Invalid ticket types: {list(invalid)}"
         )
 
-    logger.info("Department values are valid.")
+    logger.info("Ticket types are valid.")
+
+
+def validate_status_values(dataframe: pd.DataFrame) -> None:
+    """
+    Validate ticket status values.
+    """
+
+    invalid = (
+        dataframe.loc[
+            ~dataframe["Ticket Status"].isin(VALID_STATUSES),
+            "Ticket Status",
+        ]
+        .dropna()
+        .unique()
+    )
+
+    if len(invalid) > 0:
+        logger.error(
+            "Invalid status values: %s",
+            list(invalid),
+        )
+
+        raise ValueError(
+            f"Invalid status values: {list(invalid)}"
+        )
+
+    logger.info("Ticket status values are valid.")
 
 
 def validate_dataframe(dataframe: pd.DataFrame) -> None:
     """
-    Run all validation checks on the dataset.
+    Run all validation checks.
     """
 
     logger.info("Starting dataset validation.")
@@ -156,6 +200,7 @@ def validate_dataframe(dataframe: pd.DataFrame) -> None:
     validate_missing_values(dataframe)
     validate_duplicate_ticket_ids(dataframe)
     validate_priority_values(dataframe)
-    validate_department_values(dataframe)
+    validate_ticket_type_values(dataframe)
+    validate_status_values(dataframe)
 
     logger.info("Dataset validation completed successfully.")
