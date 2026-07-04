@@ -57,3 +57,22 @@ def validate_missing_values(
         )
 
     logger.info("No missing values found.")
+
+
+def validate_duplicate_ticket_ids(dataframe: pd.DataFrame) -> None:
+    """
+    Validate that ticket IDs are unique.
+    """
+
+    duplicates = dataframe["ticket_id"].duplicated()
+
+    if duplicates.any():
+        duplicate_ids = dataframe.loc[duplicates, "ticket_id"].tolist()
+
+        logger.error("Duplicate ticket IDs found: %s", duplicate_ids)
+
+        raise ValueError(
+            f"Duplicate ticket IDs found: {duplicate_ids}"
+        )
+
+    logger.info("No duplicate ticket IDs found.")
