@@ -53,3 +53,63 @@
 2026-07-04 11:21:12,676 | INFO | src.data_validator | Priority values are valid.
 2026-07-04 11:21:12,677 | INFO | src.data_validator | Ticket types are valid.
 2026-07-04 11:21:12,678 | ERROR | src.data_validator | Invalid status values: ['Pending Customer Response']
+2026-07-04 11:22:29,707 | INFO | src.data_loader | Loading dataset: ..\data\raw\customer_support_tickets.csv
+2026-07-04 11:22:29,740 | INFO | src.data_loader | Dataset loaded successfully (8469 rows, 17 columns)
+2026-07-04 11:22:29,740 | INFO | src.data_validator | Starting dataset validation.
+2026-07-04 11:22:29,741 | INFO | src.data_validator | All required columns are present.
+2026-07-04 11:22:29,743 | INFO | src.data_validator | No missing values found.
+2026-07-04 11:22:29,744 | INFO | src.data_validator | No duplicate Ticket IDs found.
+2026-07-04 11:22:29,745 | INFO | src.data_validator | Priority values are valid.
+2026-07-04 11:22:29,746 | INFO | src.data_validator | Ticket types are valid.
+2026-07-04 11:22:29,747 | INFO | src.data_validator | Ticket status values are valid.
+2026-07-04 11:22:29,748 | INFO | src.data_validator | Dataset validation completed successfully.
+2026-07-04 11:24:42,122 | INFO | src.data_loader | Loading dataset: ..\data\raw\customer_support_tickets.csv
+2026-07-04 11:24:42,156 | INFO | src.data_loader | Dataset loaded successfully (8469 rows, 17 columns)
+2026-07-04 11:24:42,158 | INFO | src.data_validator | Starting dataset validation.
+2026-07-04 11:24:42,158 | INFO | src.data_validator | All required columns are present.
+2026-07-04 11:24:42,161 | INFO | src.data_validator | No missing values found.
+2026-07-04 11:24:42,161 | INFO | src.data_validator | No duplicate Ticket IDs found.
+2026-07-04 11:24:42,162 | INFO | src.data_validator | Priority values are valid.
+2026-07-04 11:24:42,163 | INFO | src.data_validator | Ticket types are valid.
+2026-07-04 11:24:42,164 | INFO | src.data_validator | Ticket status values are valid.
+2026-07-04 11:24:42,164 | INFO | src.data_validator | Dataset validation completed successfully.
+2026-07-04 11:41:10,957 | INFO | src.data_loader | Loading dataset: ..\data\raw\customer_support_tickets.csv
+2026-07-04 11:41:10,988 | INFO | src.data_loader | Dataset loaded successfully (8469 rows, 17 columns)
+2026-07-04 11:41:10,989 | INFO | src.data_validator | Starting dataset validation.
+2026-07-04 11:41:10,990 | INFO | src.data_validator | All required columns are present.
+2026-07-04 11:41:10,992 | INFO | src.data_validator | No missing values found.
+2026-07-04 11:41:10,993 | INFO | src.data_validator | No duplicate Ticket IDs found.
+2026-07-04 11:41:10,993 | INFO | src.data_validator | Priority values are valid.
+2026-07-04 11:41:10,994 | INFO | src.data_validator | Ticket types are valid.
+2026-07-04 11:41:10,995 | INFO | src.data_validator | Ticket status values are valid.
+2026-07-04 11:41:10,996 | INFO | src.data_validator | Dataset validation completed successfully.
+2026-07-04 11:41:15,203 | INFO | src.data_loader | Loading dataset: ..\data\raw\customer_support_tickets.csv
+2026-07-04 11:41:15,233 | INFO | src.data_loader | Dataset loaded successfully (8469 rows, 17 columns)
+2026-07-04 11:41:15,234 | INFO | src.data_validator | Starting dataset validation.
+2026-07-04 11:41:15,235 | INFO | src.data_validator | All required columns are present.
+2026-07-04 11:41:15,237 | INFO | src.data_validator | No missing values found.
+2026-07-04 11:41:15,238 | INFO | src.data_validator | No duplicate Ticket IDs found.
+2026-07-04 11:41:15,239 | INFO | src.data_validator | Priority values are valid.
+2026-07-04 11:41:15,240 | INFO | src.data_validator | Ticket types are valid.
+2026-07-04 11:41:15,241 | INFO | src.data_validator | Ticket status values are valid.
+2026-07-04 11:41:15,241 | INFO | src.data_validator | Dataset validation completed successfully.
+2026-07-04 11:41:20,748 | INFO | src.data_loader | Loading dataset: ..\data\raw\customer_support_tickets.csv
+2026-07-04 11:41:20,778 | INFO | src.data_loader | Dataset loaded successfully (8469 rows, 17 columns)
+2026-07-04 11:41:20,779 | INFO | src.data_validator | Starting dataset validation.
+2026-07-04 11:41:20,781 | INFO | src.data_validator | All required columns are present.
+2026-07-04 11:41:20,782 | INFO | src.data_validator | No missing values found.
+2026-07-04 11:41:20,782 | INFO | src.data_validator | No duplicate Ticket IDs found.
+2026-07-04 11:41:20,783 | INFO | src.data_validator | Priority values are valid.
+2026-07-04 11:41:20,784 | INFO | src.data_validator | Ticket types are valid.
+2026-07-04 11:41:20,785 | INFO | src.data_validator | Ticket status values are valid.
+2026-07-04 11:41:20,785 | INFO | src.data_validator | Dataset validation completed successfully.
+2026-07-04 11:42:52,793 | INFO | src.data_loader | Loading dataset: ..\data\raw\customer_support_tickets.csv
+2026-07-04 11:42:52,826 | INFO | src.data_loader | Dataset loaded successfully (8469 rows, 17 columns)
+2026-07-04 11:42:52,828 | INFO | src.data_validator | Starting dataset validation.
+2026-07-04 11:42:52,829 | INFO | src.data_validator | All required columns are present.
+2026-07-04 11:42:52,831 | INFO | src.data_validator | No missing values found.
+2026-07-04 11:42:52,832 | INFO | src.data_validator | No duplicate Ticket IDs found.
+2026-07-04 11:42:52,832 | INFO | src.data_validator | Priority values are valid.
+2026-07-04 11:42:52,833 | INFO | src.data_validator | Ticket types are valid.
+2026-07-04 11:42:52,834 | INFO | src.data_validator | Ticket status values are valid.
+2026-07-04 11:42:52,835 | INFO | src.data_validator | Dataset validation completed successfully.
