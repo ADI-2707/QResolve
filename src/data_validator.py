@@ -36,3 +36,24 @@ def validate_columns(
         )
 
     logger.info("All required columns are present.")
+
+
+def validate_missing_values(
+    dataframe: pd.DataFrame,
+    required_columns: Iterable[str] = REQUIRED_COLUMNS,
+) -> None:
+    """
+    Validate that required columns do not contain missing values.
+    """
+
+    missing = dataframe[list(required_columns)].isnull().sum()
+
+    missing = missing[missing > 0]
+
+    if not missing.empty:
+        logger.error("Missing values detected:\n%s", missing)
+        raise ValueError(
+            f"Missing values detected:\n{missing}"
+        )
+
+    logger.info("No missing values found.")
