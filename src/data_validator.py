@@ -20,6 +20,13 @@ VALID_PRIORITIES = {
     "Low",
 }
 
+VALID_DEPARTMENTS = {
+    "IT",
+    "Billing",
+    "Engineering",
+    "Product",
+}
+
 
 def validate_columns(
     dataframe: pd.DataFrame,
@@ -109,3 +116,30 @@ def validate_priority_values(dataframe: pd.DataFrame) -> None:
         )
 
     logger.info("Priority values are valid.")
+
+
+def validate_department_values(dataframe: pd.DataFrame) -> None:
+    """
+    Validate that the department column contains only valid values.
+    """
+
+    invalid_departments = (
+        dataframe.loc[
+            ~dataframe["department"].isin(VALID_DEPARTMENTS),
+            "department",
+        ]
+        .dropna()
+        .unique()
+    )
+
+    if len(invalid_departments) > 0:
+        logger.error(
+            "Invalid department values found: %s",
+            list(invalid_departments),
+        )
+
+        raise ValueError(
+            f"Invalid department values: {list(invalid_departments)}"
+        )
+
+    logger.info("Department values are valid.")
