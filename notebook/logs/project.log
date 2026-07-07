@@ -113,3 +113,15 @@
 2026-07-04 11:42:52,833 | INFO | src.data_validator | Ticket types are valid.
 2026-07-04 11:42:52,834 | INFO | src.data_validator | Ticket status values are valid.
 2026-07-04 11:42:52,835 | INFO | src.data_validator | Dataset validation completed successfully.
+2026-07-04 12:23:57,936 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-04 12:23:57,937 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-04 12:48:22,215 | INFO | src.data_loader | Loading dataset: ..\data\raw\customer_support_tickets.csv
+2026-07-04 12:48:22,251 | INFO | src.data_loader | Dataset loaded successfully (8469 rows, 17 columns)
+2026-07-04 12:48:22,251 | INFO | src.data_validator | Starting dataset validation.
+2026-07-04 12:48:22,252 | INFO | src.data_validator | All required columns are present.
+2026-07-04 12:48:22,254 | INFO | src.data_validator | No missing values found.
+2026-07-04 12:48:22,255 | INFO | src.data_validator | No duplicate Ticket IDs found.
+2026-07-04 12:48:22,256 | INFO | src.data_validator | Priority values are valid.
+2026-07-04 12:48:22,256 | INFO | src.data_validator | Ticket types are valid.
+2026-07-04 12:48:22,257 | INFO | src.data_validator | Ticket status values are valid.
+2026-07-04 12:48:22,258 | INFO | src.data_validator | Dataset validation completed successfully.
