@@ -14,3 +14,8 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Trained models
+models/random_forest.pkl
+models/logistic_regression.pkl
+models/linear_svm.pkl
