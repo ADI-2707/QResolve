@@ -3,18 +3,26 @@ from fastapi import FastAPI
 from app.schemas import TicketRequest, PredictionResponse
 from app.predictor import predict_priority
 
-
 app = FastAPI(
-    title="QResolve Ticket Priority API",
-    version="1.0.0",
-    description="Production Support Ticket Priority Prediction API"
+    title="QResolve API",
+    description="AI-powered Support Ticket Priority Prediction API",
+    version="1.0.0"
 )
 
 
 @app.get("/")
 def root():
     return {
-        "message": "QResolve API is running."
+        "message": "Welcome to QResolve API",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy"
     }
 
 
@@ -22,10 +30,10 @@ def root():
     "/predict",
     response_model=PredictionResponse
 )
-def predict(request: TicketRequest):
+def predict(ticket: TicketRequest):
 
     prediction = predict_priority(
-        request.model_dump()
+        ticket.model_dump()
     )
 
     return PredictionResponse(
