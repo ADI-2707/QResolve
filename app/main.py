@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from app.config import (
     API_TITLE,
@@ -43,14 +43,22 @@ def health():
     response_model=PredictionResponse
 )
 def predict(ticket: TicketRequest):
+
     logger.info("Prediction request received")
 
-    prediction = predict_priority(
-        ticket.model_dump()
-    )
+    try:
+        prediction = predict_priority(ticket.model_dump())
 
-    logger.info(f"Prediction completed: {prediction}")
+        logger.info(f"Prediction completed: {prediction}")
 
-    return PredictionResponse(
-        priority=prediction
-    )
+        return PredictionResponse(
+            priority=prediction
+        )
+
+    except Exception as e:
+        logger.exception("Prediction failed")
+
+        raise HTTPException(
+            status_code=500,
+            detail="Prediction failed"
+        )
