@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+import time
+
+from fastapi import FastAPI, HTTPException, Request
 
 from app.config import (
     API_TITLE,
@@ -16,6 +18,22 @@ app = FastAPI(
 )
 
 logger.info("QResolve API started")
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    duration = time.time() - start_time
+
+    logger.info(
+        f"{request.method} {request.url.path} "
+        f"{response.status_code} "
+        f"{duration:.3f}s"
+    )
+
+    return response
 
 
 @app.get("/")
