@@ -1,7 +1,9 @@
 import time
-from typing import List
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+
 
 from app.database import (
     engine,
@@ -38,6 +40,37 @@ from app.schemas import (
 from app.models import Prediction
 
 
+# ==========================
+# Application Lifespan
+# ==========================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    # Database initialization
+    Base.metadata.create_all(
+        bind=engine
+    )
+
+    logger.info(
+        "Database tables initialized"
+    )
+
+    logger.info(
+        "QResolve API started"
+    )
+
+    yield
+
+    logger.info(
+        "QResolve API shutdown"
+    )
+
+
+# ==========================
+# FastAPI Application
+# ==========================
+
 app = FastAPI(
     title=API_TITLE,
     description=API_DESCRIPTION,
@@ -45,19 +78,8 @@ app = FastAPI(
     contact=API_CONTACT,
     license_info=API_LICENSE,
     openapi_tags=API_TAGS,
+    lifespan=lifespan,
 )
-
-
-# ==========================
-# Database Initialization
-# ==========================
-
-Base.metadata.create_all(bind=engine)
-
-logger.info("Database tables initialized")
-
-
-logger.info("QResolve API started")
 
 
 # ==========================
@@ -68,6 +90,7 @@ app.add_exception_handler(
     RequestValidationError,
     validation_exception_handler,
 )
+
 
 app.add_exception_handler(
     Exception,
@@ -80,7 +103,10 @@ app.add_exception_handler(
 # ==========================
 
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
+async def log_requests(
+    request: Request,
+    call_next,
+):
 
     start_time = time.time()
 
@@ -89,7 +115,8 @@ async def log_requests(request: Request, call_next):
     duration = time.time() - start_time
 
     logger.info(
-        f"{request.method} {request.url.path} "
+        f"{request.method} "
+        f"{request.url.path} "
         f"{response.status_code} "
         f"{duration:.3f}s"
     )
@@ -109,7 +136,9 @@ async def log_requests(request: Request, call_next):
 )
 def root():
 
-    logger.info("Root endpoint accessed")
+    logger.info(
+        "Root endpoint accessed"
+    )
 
     return {
         "message": "Welcome to QResolve API",
@@ -130,7 +159,9 @@ def root():
 )
 def health():
 
-    logger.info("Health check requested")
+    logger.info(
+        "Health check requested"
+    )
 
     return {
         "status": "healthy",
@@ -151,16 +182,16 @@ def health():
         "using the trained machine learning model."
     ),
 )
-def predict(ticket: TicketRequest):
+def predict(
+    ticket: TicketRequest,
+):
 
     logger.info(
         "Prediction request received"
     )
 
 
-    # --------------------------
     # ML Prediction
-    # --------------------------
 
     prediction = predict_priority(
         ticket.model_dump()
@@ -172,9 +203,7 @@ def predict(ticket: TicketRequest):
     )
 
 
-    # --------------------------
-    # Save Prediction to Database
-    # --------------------------
+    # Save prediction
 
     db = SessionLocal()
 
@@ -191,11 +220,16 @@ def predict(ticket: TicketRequest):
             predicted_priority=prediction,
         )
 
-        db.add(prediction_record)
+
+        db.add(
+            prediction_record
+        )
 
         db.commit()
 
-        db.refresh(prediction_record)
+        db.refresh(
+            prediction_record
+        )
 
 
         logger.info(
@@ -208,7 +242,7 @@ def predict(ticket: TicketRequest):
 
         db.rollback()
 
-        logger.error(
+        logger.exception(
             f"Database error: {e}"
         )
 
@@ -244,6 +278,7 @@ def get_predictions():
         "Prediction history requested"
     )
 
+
     db = SessionLocal()
 
     try:
@@ -257,6 +292,7 @@ def get_predictions():
         )
 
         return predictions
+
 
     finally:
 

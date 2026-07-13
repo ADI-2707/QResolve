@@ -5,22 +5,20 @@ from sqlalchemy.orm import sessionmaker
 from app.config import DATABASE_URL
 
 
-# ==========================
-# Database Engine
-# ==========================
+connect_args = {}
+
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {
+        "check_same_thread": False
+    }
+
 
 engine = create_engine(
     DATABASE_URL,
     echo=False,
-    connect_args={
-        "check_same_thread": False
-    }
+    connect_args=connect_args,
 )
 
-
-# ==========================
-# Database Session
-# ==========================
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -29,16 +27,8 @@ SessionLocal = sessionmaker(
 )
 
 
-# ==========================
-# Base Model
-# ==========================
-
 Base = declarative_base()
 
-
-# ==========================
-# Dependency
-# ==========================
 
 def get_db():
 

@@ -61,7 +61,7 @@ LOG_LEVEL = os.getenv(
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "sqlite:///./database/qresolve.db",
+    "sqlite:///./qresolve.db",
 )
 
 
