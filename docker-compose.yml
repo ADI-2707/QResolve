@@ -8,11 +8,14 @@ services:
 
     container_name: qresolve-api
 
+
     ports:
       - "8000:8000"
 
+
     volumes:
-      - qresolve-db:/app/database
+      - .:/app
+
 
     healthcheck:
       test:
@@ -22,13 +25,12 @@ services:
           "-f",
           "http://localhost:8000/health"
         ]
+
       interval: 30s
+
       timeout: 10s
+
       retries: 3
 
+
     restart: unless-stopped
-
-
-volumes:
-
-  qresolve-db:
