@@ -26,6 +26,13 @@ venv/
 logs/
 *.log
 
+# Database
+qresolve.db
+*.db
+
+# Environment
+.env
+
 # Training artifacts
 models/X_train.pkl
 models/X_test.pkl
@@ -43,3 +50,7 @@ tests/
 
 # Processed datasets
 processed/
+
+# SQLite database
+database/*.db
+qresolve.db

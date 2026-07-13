@@ -3,6 +3,14 @@ from typing import List
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
+from app.database import (
+    engine,
+    Base,
+    SessionLocal,
+)
+
+import app.models
+
 from app.config import (
     API_TITLE,
     API_DESCRIPTION,
@@ -27,7 +35,6 @@ from app.schemas import (
     PredictionHistoryResponse,
 )
 
-from app.database import SessionLocal
 from app.models import Prediction
 
 
@@ -39,6 +46,15 @@ app = FastAPI(
     license_info=API_LICENSE,
     openapi_tags=API_TAGS,
 )
+
+
+# ==========================
+# Database Initialization
+# ==========================
+
+Base.metadata.create_all(bind=engine)
+
+logger.info("Database tables initialized")
 
 
 logger.info("QResolve API started")
