@@ -1,16 +1,16 @@
 from pathlib import Path
-
-from dotenv import load_dotenv
-
 import os
 
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
 
+# ==========================
 # API
+# ==========================
 
 API_TITLE = os.getenv(
     "API_TITLE",
@@ -28,7 +28,9 @@ API_VERSION = os.getenv(
 )
 
 
+# ==========================
 # Server
+# ==========================
 
 HOST = os.getenv(
     "HOST",
@@ -43,7 +45,9 @@ PORT = int(
 )
 
 
+# ==========================
 # Logging
+# ==========================
 
 LOG_LEVEL = os.getenv(
     "LOG_LEVEL",
@@ -51,28 +55,36 @@ LOG_LEVEL = os.getenv(
 )
 
 
+# ==========================
+# Database
+# ==========================
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./qresolve.db",
+)
+
+
+# ==========================
 # Paths
+# ==========================
 
 MODELS_DIR = BASE_DIR / "models"
 LOGS_DIR = BASE_DIR / "logs"
 
 
-# Contact
+# ==========================
+# API Metadata
+# ==========================
 
 API_CONTACT = {
     "name": "Aditya Singh",
     "email": "aditya21singh2707@gmail.com",
 }
 
-
-# License
-
 API_LICENSE = {
     "name": "MIT License",
 }
-
-
-# Tags
 
 API_TAGS = [
     {

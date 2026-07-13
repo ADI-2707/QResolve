@@ -32,3 +32,6 @@ models/y_test.pkl
 
 # env
 .env
+
+# Database
+*.db
