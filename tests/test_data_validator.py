@@ -6,31 +6,44 @@ from src.data_validator import (
     validate_missing_values,
     validate_duplicate_ticket_ids,
     validate_priority_values,
-    validate_department_values,
+    validate_ticket_type_values,
+    validate_status_values,
     validate_dataframe,
 )
 
 
-def test_validate_columns_passes():
-    dataframe = pd.DataFrame(
+def valid_dataframe():
+    return pd.DataFrame(
         {
-            "ticket_id": [1],
-            "subject": ["Login"],
-            "description": ["Unable to login"],
-            "priority": ["High"],
-            "department": ["IT"],
+            "Ticket ID": [1, 2],
+            "Ticket Subject": ["Login", "Payment"],
+            "Ticket Description": [
+                "Unable to login",
+                "Card declined",
+            ],
+            "Ticket Priority": [
+                "High",
+                "Medium",
+            ],
+            "Ticket Type": [
+                "Technical issue",
+                "Billing inquiry",
+            ],
+            "Ticket Status": [
+                "Open",
+                "Closed",
+            ],
         }
     )
 
-    validate_columns(dataframe)
+
+def test_validate_columns_passes():
+    validate_columns(valid_dataframe())
 
 
 def test_validate_columns_fails():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1],
-            "subject": ["Login"],
-        }
+    dataframe = valid_dataframe().drop(
+        columns=["Ticket Status"]
     )
 
     with pytest.raises(ValueError):
@@ -38,156 +51,78 @@ def test_validate_columns_fails():
 
 
 def test_validate_missing_values_passes():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1],
-            "subject": ["Login"],
-            "description": ["Unable to login"],
-            "priority": ["High"],
-            "department": ["IT"],
-        }
-    )
-
-    validate_missing_values(dataframe)
+    validate_missing_values(valid_dataframe())
 
 
 def test_validate_missing_values_fails():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1],
-            "subject": [None],
-            "description": ["Unable to login"],
-            "priority": ["High"],
-            "department": ["IT"],
-        }
-    )
+    dataframe = valid_dataframe()
+
+    dataframe.loc[0, "Ticket Subject"] = None
 
     with pytest.raises(ValueError):
         validate_missing_values(dataframe)
 
 
 def test_validate_duplicate_ticket_ids_passes():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1, 2],
-            "subject": ["Login", "Payment"],
-            "description": ["Unable to login", "Card declined"],
-            "priority": ["High", "Medium"],
-            "department": ["IT", "Billing"],
-        }
-    )
-
-    validate_duplicate_ticket_ids(dataframe)
+    validate_duplicate_ticket_ids(valid_dataframe())
 
 
 def test_validate_duplicate_ticket_ids_fails():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1, 1],
-            "subject": ["Login", "Payment"],
-            "description": ["Unable to login", "Card declined"],
-            "priority": ["High", "Medium"],
-            "department": ["IT", "Billing"],
-        }
-    )
+    dataframe = valid_dataframe()
+
+    dataframe.loc[1, "Ticket ID"] = 1
 
     with pytest.raises(ValueError):
         validate_duplicate_ticket_ids(dataframe)
 
 
 def test_validate_priority_values_passes():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1, 2, 3],
-            "subject": ["A", "B", "C"],
-            "description": ["A", "B", "C"],
-            "priority": ["High", "Medium", "Low"],
-            "department": ["IT", "Billing", "Engineering"],
-        }
-    )
-
-    validate_priority_values(dataframe)
+    validate_priority_values(valid_dataframe())
 
 
 def test_validate_priority_values_fails():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1],
-            "subject": ["A"],
-            "description": ["A"],
-            "priority": ["Urgent"],
-            "department": ["IT"],
-        }
-    )
+    dataframe = valid_dataframe()
+
+    dataframe.loc[0, "Ticket Priority"] = "Urgent"
 
     with pytest.raises(ValueError):
         validate_priority_values(dataframe)
 
 
-def test_validate_department_values_passes():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1, 2, 3, 4],
-            "subject": ["A", "B", "C", "D"],
-            "description": ["A", "B", "C", "D"],
-            "priority": ["High", "Medium", "Low", "High"],
-            "department": [
-                "IT",
-                "Billing",
-                "Engineering",
-                "Product",
-            ],
-        }
-    )
-
-    validate_department_values(dataframe)
+def test_validate_ticket_type_values_passes():
+    validate_ticket_type_values(valid_dataframe())
 
 
-def test_validate_department_values_fails():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1],
-            "subject": ["A"],
-            "description": ["A"],
-            "priority": ["High"],
-            "department": ["Finance"],
-        }
-    )
+def test_validate_ticket_type_values_fails():
+    dataframe = valid_dataframe()
+
+    dataframe.loc[0, "Ticket Type"] = "Finance"
 
     with pytest.raises(ValueError):
-        validate_department_values(dataframe)
+        validate_ticket_type_values(dataframe)
+
+
+def test_validate_status_values_passes():
+    validate_status_values(valid_dataframe())
+
+
+def test_validate_status_values_fails():
+    dataframe = valid_dataframe()
+
+    dataframe.loc[0, "Ticket Status"] = "Resolved"
+
+    with pytest.raises(ValueError):
+        validate_status_values(dataframe)
 
 
 def test_validate_dataframe_passes():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1, 2],
-            "subject": ["Login", "Payment"],
-            "description": [
-                "Unable to login",
-                "Payment failed",
-            ],
-            "priority": ["High", "Medium"],
-            "department": ["IT", "Billing"],
-        }
-    )
-
-    validate_dataframe(dataframe)
+    validate_dataframe(valid_dataframe())
 
 
 def test_validate_dataframe_fails():
-    dataframe = pd.DataFrame(
-        {
-            "ticket_id": [1, 1],
-            "subject": ["Login", "Payment"],
-            "description": [
-                "Unable to login",
-                "Payment failed",
-            ],
-            "priority": ["High", "Medium"],
-            "department": ["IT", "Billing"],
-        }
-    )
+    dataframe = valid_dataframe()
+
+    dataframe.loc[1, "Ticket ID"] = 1
 
     with pytest.raises(ValueError):
         validate_dataframe(dataframe)
