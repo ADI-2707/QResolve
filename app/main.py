@@ -1,5 +1,5 @@
 import time
-
+from typing import List
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
@@ -24,6 +24,7 @@ from app.predictor import predict_priority
 from app.schemas import (
     TicketRequest,
     PredictionResponse,
+    PredictionHistoryResponse,
 )
 
 from app.database import SessionLocal
@@ -206,3 +207,41 @@ def predict(ticket: TicketRequest):
     return PredictionResponse(
         priority=prediction
     )
+
+
+# ==========================
+# Prediction History Endpoint
+# ==========================
+
+@app.get(
+    "/predictions",
+    response_model=list[PredictionHistoryResponse],
+    tags=["Prediction"],
+    summary="Get Prediction History",
+    description=(
+        "Returns previously generated ticket priority predictions."
+    ),
+)
+def get_predictions():
+
+    logger.info(
+        "Prediction history requested"
+    )
+
+    db = SessionLocal()
+
+    try:
+
+        predictions = (
+            db.query(Prediction)
+            .order_by(
+                Prediction.created_at.desc()
+            )
+            .all()
+        )
+
+        return predictions
+
+    finally:
+
+        db.close()
