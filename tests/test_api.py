@@ -82,3 +82,19 @@ def test_predict_endpoint_defaults():
     data = response.json()
 
     assert "priority" in data
+
+
+def test_prediction_history_endpoint():
+
+    response = client.get(
+        "/predictions"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert isinstance(
+        data,
+        list,
+    )
