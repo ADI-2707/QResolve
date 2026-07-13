@@ -1,6 +1,6 @@
 import time
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 
 from app.config import (
     API_TITLE,

@@ -1,18 +1,18 @@
 import logging
-from pathlib import Path
 
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
+from app.config import LOG_LEVEL, LOGS_DIR
 
-LOG_FILE = LOG_DIR / "api.log"
+LOGS_DIR.mkdir(exist_ok=True)
+
+LOG_FILE = LOGS_DIR / "api.log"
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, LOG_LEVEL.upper()),
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     handlers=[
         logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 
 logger = logging.getLogger("QResolveAPI")
