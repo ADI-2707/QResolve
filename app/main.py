@@ -11,6 +11,13 @@ from app.schemas import TicketRequest, PredictionResponse
 from app.predictor import predict_priority
 from app.logger import logger
 
+from fastapi.exceptions import RequestValidationError
+
+from app.exceptions import (
+    validation_exception_handler,
+    generic_exception_handler,
+)
+
 app = FastAPI(
     title=API_TITLE,
     description=API_DESCRIPTION,
@@ -18,6 +25,16 @@ app = FastAPI(
 )
 
 logger.info("QResolve API started")
+
+app.add_exception_handler(
+    RequestValidationError,
+    validation_exception_handler,
+)
+
+app.add_exception_handler(
+    Exception,
+    generic_exception_handler,
+)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -64,19 +81,10 @@ def predict(ticket: TicketRequest):
 
     logger.info("Prediction request received")
 
-    try:
-        prediction = predict_priority(ticket.model_dump())
+    prediction = predict_priority(ticket.model_dump())
 
-        logger.info(f"Prediction completed: {prediction}")
+    logger.info(f"Prediction completed: {prediction}")
 
-        return PredictionResponse(
-            priority=prediction
-        )
-
-    except Exception as e:
-        logger.exception("Prediction failed")
-
-        raise HTTPException(
-            status_code=500,
-            detail="Prediction failed"
-        )
+    return PredictionResponse(
+        priority=prediction
+    )

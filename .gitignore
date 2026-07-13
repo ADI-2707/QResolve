@@ -8,6 +8,10 @@ __pycache__/
 # IDE
 .idea/
 
+# Log files
+logs/
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
