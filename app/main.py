@@ -1,12 +1,17 @@
 from fastapi import FastAPI
 
+from app.config import (
+    API_TITLE,
+    API_DESCRIPTION,
+    API_VERSION,
+)
 from app.schemas import TicketRequest, PredictionResponse
 from app.predictor import predict_priority
 
 app = FastAPI(
-    title="QResolve API",
-    description="AI-powered Support Ticket Priority Prediction API",
-    version="1.0.0"
+    title=API_TITLE,
+    description=API_DESCRIPTION,
+    version=API_VERSION,
 )
 
 
