@@ -8,6 +8,10 @@ __pycache__/
 # IDE
 .idea/
 
+# Log files
+logs/
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
@@ -25,3 +29,6 @@ models/X_train.pkl
 models/X_test.pkl
 models/y_train.pkl
 models/y_test.pkl
+
+# env
+.env
