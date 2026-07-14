@@ -69,7 +69,7 @@ DATABASE_URL = os.getenv(
 # Paths
 # ==========================
 
-MODELS_DIR = BASE_DIR / "models"
+MODELS_DIR = BASE_DIR / "artifacts"
 LOGS_DIR = BASE_DIR / "logs"
 
 

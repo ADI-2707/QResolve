@@ -7,7 +7,7 @@ from scipy.sparse import hstack
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-MODELS_DIR = BASE_DIR / "models"
+MODELS_DIR = BASE_DIR / "artifacts"
 
 
 model = joblib.load(MODELS_DIR / "random_forest.pkl")
