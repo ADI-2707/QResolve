@@ -1,7 +1,15 @@
 import time
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+
+
+from app.database import (
+    SessionLocal,
+)
+
+import app.models
 
 from app.config import (
     API_TITLE,
@@ -11,16 +19,46 @@ from app.config import (
     API_LICENSE,
     API_TAGS,
 )
+
 from app.exceptions import (
     validation_exception_handler,
     generic_exception_handler,
 )
+
 from app.logger import logger
+
 from app.predictor import predict_priority
+
 from app.schemas import (
     TicketRequest,
     PredictionResponse,
+    PredictionHistoryResponse,
 )
+
+from app.models import Prediction
+
+
+# ==========================
+# Application Lifespan
+# ==========================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    logger.info(
+        "QResolve API started"
+    )
+
+    yield
+
+    logger.info(
+        "QResolve API shutdown"
+    )
+
+
+# ==========================
+# FastAPI Application
+# ==========================
 
 app = FastAPI(
     title=API_TITLE,
@@ -29,14 +67,19 @@ app = FastAPI(
     contact=API_CONTACT,
     license_info=API_LICENSE,
     openapi_tags=API_TAGS,
+    lifespan=lifespan,
 )
 
-logger.info("QResolve API started")
+
+# ==========================
+# Exception Handlers
+# ==========================
 
 app.add_exception_handler(
     RequestValidationError,
     validation_exception_handler,
 )
+
 
 app.add_exception_handler(
     Exception,
@@ -44,8 +87,16 @@ app.add_exception_handler(
 )
 
 
+# ==========================
+# Request Logging Middleware
+# ==========================
+
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
+async def log_requests(
+    request: Request,
+    call_next,
+):
+
     start_time = time.time()
 
     response = await call_next(request)
@@ -53,13 +104,18 @@ async def log_requests(request: Request, call_next):
     duration = time.time() - start_time
 
     logger.info(
-        f"{request.method} {request.url.path} "
+        f"{request.method} "
+        f"{request.url.path} "
         f"{response.status_code} "
         f"{duration:.3f}s"
     )
 
     return response
 
+
+# ==========================
+# Root Endpoint
+# ==========================
 
 @app.get(
     "/",
@@ -68,7 +124,10 @@ async def log_requests(request: Request, call_next):
     description="Returns basic information about the QResolve API.",
 )
 def root():
-    logger.info("Root endpoint accessed")
+
+    logger.info(
+        "Root endpoint accessed"
+    )
 
     return {
         "message": "Welcome to QResolve API",
@@ -77,6 +136,10 @@ def root():
     }
 
 
+# ==========================
+# Health Check
+# ==========================
+
 @app.get(
     "/health",
     tags=["General"],
@@ -84,12 +147,19 @@ def root():
     description="Returns the current health status of the API.",
 )
 def health():
-    logger.info("Health check requested")
+
+    logger.info(
+        "Health check requested"
+    )
 
     return {
         "status": "healthy",
     }
 
+
+# ==========================
+# Prediction Endpoint
+# ==========================
 
 @app.post(
     "/predict",
@@ -101,13 +171,118 @@ def health():
         "using the trained machine learning model."
     ),
 )
-def predict(ticket: TicketRequest):
-    logger.info("Prediction request received")
+def predict(
+    ticket: TicketRequest,
+):
 
-    prediction = predict_priority(ticket.model_dump())
+    logger.info(
+        "Prediction request received"
+    )
 
-    logger.info(f"Prediction completed: {prediction}")
+
+    # ML Prediction
+
+    prediction = predict_priority(
+        ticket.model_dump()
+    )
+
+
+    logger.info(
+        f"Prediction completed: {prediction}"
+    )
+
+
+    # Save prediction
+
+    db = SessionLocal()
+
+    try:
+
+        prediction_record = Prediction(
+            text=ticket.text,
+            type=ticket.type,
+            queue=ticket.queue,
+            tag_1=ticket.tag_1,
+            tag_2=ticket.tag_2,
+            tag_3=ticket.tag_3,
+            tag_4=ticket.tag_4,
+            predicted_priority=prediction,
+        )
+
+
+        db.add(
+            prediction_record
+        )
+
+        db.commit()
+
+        db.refresh(
+            prediction_record
+        )
+
+
+        logger.info(
+            f"Prediction saved with ID: "
+            f"{prediction_record.id}"
+        )
+
+
+    except Exception as e:
+
+        db.rollback()
+
+        logger.exception(
+            f"Database error: {e}"
+        )
+
+        raise
+
+
+    finally:
+
+        db.close()
+
 
     return PredictionResponse(
         priority=prediction
     )
+
+
+# ==========================
+# Prediction History Endpoint
+# ==========================
+
+@app.get(
+    "/predictions",
+    response_model=list[PredictionHistoryResponse],
+    tags=["Prediction"],
+    summary="Get Prediction History",
+    description=(
+        "Returns previously generated ticket priority predictions."
+    ),
+)
+def get_predictions():
+
+    logger.info(
+        "Prediction history requested"
+    )
+
+
+    db = SessionLocal()
+
+    try:
+
+        predictions = (
+            db.query(Prediction)
+            .order_by(
+                Prediction.created_at.desc()
+            )
+            .all()
+        )
+
+        return predictions
+
+
+    finally:
+
+        db.close()

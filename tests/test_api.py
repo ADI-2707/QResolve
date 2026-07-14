@@ -82,3 +82,64 @@ def test_predict_endpoint_defaults():
     data = response.json()
 
     assert "priority" in data
+
+
+def test_prediction_history_endpoint():
+
+    response = client.get(
+        "/predictions"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert isinstance(
+        data,
+        list,
+    )
+
+
+def test_prediction_saved_in_database():
+
+    payload = {
+        "text": "Unable to login after password reset.",
+        "type": "Technical issue",
+        "queue": "Support",
+        "tag_1": "Authentication",
+    }
+
+
+    response = client.post(
+        "/predict",
+        json=payload,
+    )
+
+
+    assert response.status_code == 200
+
+
+    history_response = client.get(
+        "/predictions"
+    )
+
+
+    assert history_response.status_code == 200
+
+
+    data = history_response.json()
+
+
+    assert len(data) > 0
+
+
+    texts = [
+        item["text"]
+        for item in data
+    ]
+
+
+    assert (
+        "Unable to login after password reset."
+        in texts
+    )
