@@ -2,29 +2,29 @@ import styles from "./Navbar.module.css";
 
 
 const Navbar = () => {
-  return (
-    <header className={styles.navbar}>
-
-      <h1 className={styles.logo}>
-        QResolve
-      </h1>
 
 
-      <div className={styles.actions}>
+    return (
 
-        <button className={styles.notification}>
-          Notifications
-        </button>
+        <header className={styles.navbar}>
 
 
-        <div className={styles.avatar}>
-          U
-        </div>
+            <h2>
+                Support Dashboard
+            </h2>
 
-      </div>
 
-    </header>
-  );
+            <div className={styles.profile}>
+
+                Admin
+
+            </div>
+
+
+        </header>
+
+    );
+
 };
 
 

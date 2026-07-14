@@ -1,35 +1,52 @@
 import { Routes, Route } from "react-router-dom";
 
-import Dashboard from "../pages/Dashboard/Dashboard.tsx";
-import Tickets from "../pages/Tickets/Tickets.tsx";
-import Login from "../pages/Login/Login.tsx";
+
+import MainLayout from "../layouts/MainLayout/MainLayout";
+
+
+import Dashboard from "../pages/Dashboard/Dashboard";
+import Tickets from "../pages/Tickets/Tickets";
+import Login from "../pages/Login/Login";
 
 
 function AppRoutes() {
+
 
     return (
 
         <Routes>
 
-            <Route
-                path="/"
-                element={<Dashboard />}
-            />
-
-            <Route
-                path="/tickets"
-                element={<Tickets />}
-            />
 
             <Route
                 path="/login"
                 element={<Login />}
             />
 
+
+            <Route
+                path="/"
+                element={<MainLayout />}
+            >
+
+                <Route
+                    index
+                    element={<Dashboard />}
+                />
+
+
+                <Route
+                    path="tickets"
+                    element={<Tickets />}
+                />
+
+            </Route>
+
+
         </Routes>
 
     );
 
 }
+
 
 export default AppRoutes;
