@@ -1,0 +1,31 @@
+.input {
+
+    height:var(--input-height-md);
+
+    width:100%;
+
+    padding:0 var(--space-4);
+
+    border:
+
+    1px solid var(--color-gray-300);
+
+
+    border-radius:var(--radius-md);
+
+
+    font-size:var(--font-size-md);
+
+
+    outline:none;
+
+}
+
+
+
+.input:focus {
+
+    border-color:
+    var(--color-primary-500);
+
+}
