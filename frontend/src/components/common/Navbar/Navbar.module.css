@@ -1,0 +1,45 @@
+.navbar {
+
+    height:var(--navbar-height);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+
+    padding:
+    0 var(--space-6);
+
+
+    background:var(--color-white);
+
+
+    border-bottom:
+    1px solid var(--color-gray-200);
+
+}
+
+
+.profile {
+
+    height:var(--avatar-md);
+
+    width:var(--avatar-md);
+
+
+    border-radius:50%;
+
+
+    background:
+    var(--color-gray-200);
+
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}

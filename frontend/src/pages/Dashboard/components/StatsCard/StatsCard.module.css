@@ -1,0 +1,42 @@
+.container {
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:var(--space-2);
+
+}
+
+
+.title {
+
+    margin:0;
+
+    color:var(--color-gray-500);
+
+    font-size:var(--font-size-sm);
+
+}
+
+
+.value {
+
+    margin:0;
+
+    font-size:var(--font-size-3xl);
+
+    font-weight:var(--font-weight-bold);
+
+}
+
+
+.description {
+
+    margin:0;
+
+    color:var(--color-gray-600);
+
+    font-size:var(--font-size-sm);
+
+}
