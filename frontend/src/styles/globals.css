@@ -1,0 +1,42 @@
+@import "./tokens/index.css";
+
+
+* {
+
+    box-sizing:border-box;
+
+}
+
+
+html,
+body,
+#root {
+
+    min-height:100%;
+
+}
+
+
+
+body {
+
+    margin:0;
+
+    font-family:var(--font-family-primary);
+
+    font-size:var(--font-size-md);
+
+    color:var(--color-gray-900);
+
+    background:var(--color-gray-50);
+
+}
+
+
+
+button,
+input {
+
+    font-family:inherit;
+
+}

@@ -1,0 +1,41 @@
+:root {
+
+
+    /* Layout */
+
+    --sidebar-width:260px;
+
+    --navbar-height:64px;
+
+
+
+    /* Buttons */
+
+    --button-height-sm:32px;
+
+    --button-height-md:40px;
+
+    --button-height-lg:48px;
+
+
+
+    /* Inputs */
+
+    --input-height-sm:32px;
+
+    --input-height-md:40px;
+
+    --input-height-lg:48px;
+
+
+
+    /* Avatar */
+
+    --avatar-sm:32px;
+
+    --avatar-md:40px;
+
+    --avatar-lg:56px;
+
+
+}
