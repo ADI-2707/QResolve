@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 
-import Dashboard from "../pages/Dashboard";
-import Tickets from "../pages/Tickets";
-import Login from "../pages/Login";
+import Dashboard from "../pages/Dashboard/Dashboard.tsx";
+import Tickets from "../pages/Tickets/Tickets.tsx";
+import Login from "../pages/Login/Login.tsx";
 
 
 function AppRoutes() {
