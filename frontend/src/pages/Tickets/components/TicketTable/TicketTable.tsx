@@ -1,39 +1,52 @@
 import Badge from "../../../../components/common/ui/Badge/Badge";
 import Card from "../../../../components/common/ui/Card/Card";
 
+import useTickets from "../../../../hooks/useTickets";
+
 import styles from "./TicketTable.module.css";
 
 
-const tickets = [
+const TicketTable = () => {
 
-    {
-        id:"QRS-1001",
-        subject:"Unable to login",
-        type:"Technical",
-        priority:"High",
-        status:"Open"
-    },
 
-    {
-        id:"QRS-1002",
-        subject:"Payment failed",
-        type:"Billing",
-        priority:"Critical",
-        status:"Pending"
-    },
+    const {
+        tickets,
+        loading,
+        error
+    } = useTickets();
 
-    {
-        id:"QRS-1003",
-        subject:"Refund request",
-        type:"Refund",
-        priority:"Medium",
-        status:"Closed"
+
+
+    if(loading){
+
+        return (
+
+            <Card title="Tickets">
+
+                Loading tickets...
+
+            </Card>
+
+        );
+
     }
 
-];
 
 
-const TicketTable = () => {
+    if(error){
+
+        return (
+
+            <Card title="Tickets">
+
+                {error}
+
+            </Card>
+
+        );
+
+    }
+
 
 
     return (
@@ -47,15 +60,10 @@ const TicketTable = () => {
                 <div className={styles.header}>
 
                     <span>ID</span>
-
                     <span>Subject</span>
-
                     <span>Type</span>
-
                     <span>Priority</span>
-
                     <span>Status</span>
-
 
                 </div>
 
@@ -87,11 +95,13 @@ const TicketTable = () => {
 
                             <Badge
                                 variant={
-                                    ticket.priority==="Critical"
-                                    ? "danger"
+                                    ticket.priority === "Critical"
+                                    ?
+                                    "danger"
                                     :
-                                    ticket.priority==="High"
-                                    ? "warning"
+                                    ticket.priority === "High"
+                                    ?
+                                    "warning"
                                     :
                                     "info"
                                 }
