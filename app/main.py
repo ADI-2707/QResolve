@@ -6,8 +6,6 @@ from fastapi.exceptions import RequestValidationError
 
 
 from app.database import (
-    engine,
-    Base,
     SessionLocal,
 )
 
@@ -46,15 +44,6 @@ from app.models import Prediction
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
-    # Database initialization
-    Base.metadata.create_all(
-        bind=engine
-    )
-
-    logger.info(
-        "Database tables initialized"
-    )
 
     logger.info(
         "QResolve API started"
