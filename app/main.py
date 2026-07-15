@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
+from app.api.organization import router as organization_router
 
 from app.db.database import (
     SessionLocal,
@@ -38,10 +39,6 @@ from app.schemas import (
 from app.models import Prediction
 
 
-# ==========================
-# Application Lifespan
-# ==========================
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
@@ -56,10 +53,6 @@ async def lifespan(app: FastAPI):
     )
 
 
-# ==========================
-# FastAPI Application
-# ==========================
-
 app = FastAPI(
     title=API_TITLE,
     description=API_DESCRIPTION,
@@ -70,10 +63,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
-# ==========================
-# Exception Handlers
-# ==========================
+app.include_router(
+    organization_router
+)
 
 app.add_exception_handler(
     RequestValidationError,
@@ -87,9 +79,6 @@ app.add_exception_handler(
 )
 
 
-# ==========================
-# Request Logging Middleware
-# ==========================
 
 @app.middleware("http")
 async def log_requests(
@@ -113,10 +102,6 @@ async def log_requests(
     return response
 
 
-# ==========================
-# Root Endpoint
-# ==========================
-
 @app.get(
     "/",
     tags=["General"],
@@ -136,9 +121,6 @@ def root():
     }
 
 
-# ==========================
-# Health Check
-# ==========================
 
 @app.get(
     "/health",
@@ -156,10 +138,6 @@ def health():
         "status": "healthy",
     }
 
-
-# ==========================
-# Prediction Endpoint
-# ==========================
 
 @app.post(
     "/predict",
@@ -247,10 +225,6 @@ def predict(
         priority=prediction
     )
 
-
-# ==========================
-# Prediction History Endpoint
-# ==========================
 
 @app.get(
     "/predictions",
