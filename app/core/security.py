@@ -3,16 +3,14 @@ from datetime import datetime, timedelta, timezone
 from argon2 import PasswordHasher
 from jose import jwt
 
+from app.core.config import (
+    SECRET_KEY,
+    JWT_ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
+
 
 PASSWORD_HASHER = PasswordHasher()
-
-
-SECRET_KEY = "CHANGE_THIS_SECRET_KEY"
-
-ALGORITHM = "HS256"
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
-
 
 
 def hash_password(
@@ -22,7 +20,6 @@ def hash_password(
     return PASSWORD_HASHER.hash(
         password
     )
-
 
 
 def verify_password(
@@ -44,7 +41,6 @@ def verify_password(
         return False
 
 
-
 def create_access_token(
     subject: str,
 ) -> str:
@@ -55,15 +51,13 @@ def create_access_token(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
-
     payload = {
         "sub": subject,
         "exp": expire,
     }
 
-
     return jwt.encode(
         payload,
         SECRET_KEY,
-        algorithm=ALGORITHM,
+        algorithm=JWT_ALGORITHM,
     )

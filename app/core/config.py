@@ -7,11 +7,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
-
-# ==========================
-# API
-# ==========================
-
 API_TITLE = os.getenv(
     "API_TITLE",
     "QResolve API",
@@ -27,11 +22,6 @@ API_VERSION = os.getenv(
     "1.0.0",
 )
 
-
-# ==========================
-# Server
-# ==========================
-
 HOST = os.getenv(
     "HOST",
     "0.0.0.0",
@@ -44,38 +34,36 @@ PORT = int(
     )
 )
 
-
-# ==========================
-# Logging
-# ==========================
-
 LOG_LEVEL = os.getenv(
     "LOG_LEVEL",
     "INFO",
 )
-
-
-# ==========================
-# Database
-# ==========================
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "sqlite:///./qresolve.db",
 )
 
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "CHANGE_THIS_SECRET_KEY",
+)
 
-# ==========================
-# Paths
-# ==========================
+JWT_ALGORITHM = os.getenv(
+    "JWT_ALGORITHM",
+    "HS256",
+)
+
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv(
+        "ACCESS_TOKEN_EXPIRE_MINUTES",
+        60,
+    )
+)
 
 MODELS_DIR = BASE_DIR / "artifacts"
+
 LOGS_DIR = BASE_DIR / "logs"
-
-
-# ==========================
-# API Metadata
-# ==========================
 
 API_CONTACT = {
     "name": "Aditya Singh",
