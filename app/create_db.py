@@ -1,5 +1,5 @@
-from app.database import Base
-from app.database import engine
+from app.db.database import Base
+from app.db.database import engine
 
 import app.models
 
