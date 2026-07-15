@@ -7,7 +7,11 @@ from fastapi import (
 
 from sqlalchemy.orm import Session
 
-from app.db.database import SessionLocal
+from app.api.dependencies import get_current_user
+
+from app.db.database import get_db
+
+from app.models import User
 
 from app.repositories import UserRepository
 from app.services import UserService
@@ -24,37 +28,15 @@ router = APIRouter(
 )
 
 
-def get_db():
-
-    db = SessionLocal()
-
-    try:
-        yield db
-
-    finally:
-        db.close()
-
-
-
 def get_user_service(
     db: Session = Depends(get_db),
-):
+) -> UserService:
 
-    repository = UserRepository(
-        db
-    )
+    repository = UserRepository(db)
 
-    return UserService(
-        repository
-    )
+    return UserService(repository)
 
 
-
-@router.post(
-    "",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
-)
 @router.post(
     "",
     response_model=UserResponse,
@@ -62,16 +44,11 @@ def get_user_service(
 )
 def create_user(
     payload: UserCreate,
-    db: Session = Depends(get_db),
+    service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ):
-
-    service = UserService(
-        UserRepository(db)
-    )
-
     try:
-
-        user = service.create(
+        return service.create(
             organization_id=payload.organization_id,
             first_name=payload.first_name,
             last_name=payload.last_name,
@@ -79,26 +56,11 @@ def create_user(
             password=payload.password,
         )
 
-        db.commit()
-
-        db.refresh(user)
-
-        return user
-
     except ValueError as error:
-
-        db.rollback()
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error),
         )
-
-    except Exception:
-
-        db.rollback()
-        raise
-
 
 
 @router.get(
@@ -107,14 +69,11 @@ def create_user(
 )
 def get_user(
     user_id: str,
-    service: UserService = Depends(
-        get_user_service
-    ),
+    service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ):
 
-    user = service.get(
-        user_id
-    )
+    user = service.get(user_id)
 
     if user is None:
 
@@ -126,22 +85,19 @@ def get_user(
     return user
 
 
-
 @router.get(
     "/organization/{organization_id}",
     response_model=list[UserResponse],
 )
 def list_users_by_organization(
     organization_id: str,
-    service: UserService = Depends(
-        get_user_service
-    ),
+    service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ):
 
     return service.list_by_organization(
         organization_id
     )
-
 
 
 @router.delete(
@@ -150,9 +106,8 @@ def list_users_by_organization(
 )
 def archive_user(
     user_id: str,
-    service: UserService = Depends(
-        get_user_service
-    ),
+    service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ):
 
     user = service.archive(

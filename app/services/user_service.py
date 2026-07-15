@@ -1,9 +1,9 @@
+from app.core.security import hash_password
+
 from app.models import User
 from app.models import UserStatus
 
 from app.repositories import UserRepository
-
-from app.core.security import hash_password
 
 
 class UserService:
@@ -14,7 +14,6 @@ class UserService:
     ):
         self.repository = repository
 
-
     def create(
         self,
         organization_id: str,
@@ -24,40 +23,33 @@ class UserService:
         password: str,
     ) -> User:
 
-        if self.repository.exists_by_email(
-            email
-        ):
+        if self.repository.exists_by_email(email):
             raise ValueError(
                 "Email already exists"
             )
-
 
         user = User(
             organization_id=organization_id,
             first_name=first_name,
             last_name=last_name,
             email=email,
-            password_hash=hash_password(
-                password
-            ),
+            password_hash=hash_password(password),
             status=UserStatus.INVITED,
         )
 
+        user = self.repository.create(user)
 
-        return self.repository.create(
-            user
-        )
+        self.repository.db.commit()
+        self.repository.db.refresh(user)
 
+        return user
 
     def get(
         self,
         user_id: str,
     ) -> User | None:
 
-        return self.repository.get_by_id(
-            user_id
-        )
-
+        return self.repository.get_by_id(user_id)
 
     def list_by_organization(
         self,
@@ -68,21 +60,19 @@ class UserService:
             organization_id
         )
 
-
     def archive(
         self,
         user_id: str,
     ) -> User | None:
 
-        user = self.repository.get_by_id(
-            user_id
-        )
-
+        user = self.repository.get_by_id(user_id)
 
         if user is None:
             return None
 
+        user = self.repository.archive(user)
 
-        return self.repository.archive(
-            user
-        )
+        self.repository.db.commit()
+        self.repository.db.refresh(user)
+
+        return user
