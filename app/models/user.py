@@ -1,20 +1,15 @@
 import uuid
 from enum import Enum
+from datetime import datetime
 
-from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Enum as SqlEnum
-from sqlalchemy import ForeignKey
 from sqlalchemy import String
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.sql import func
 
 from app.db.database import Base
-
-
-class UserRole(str, Enum):
-    PLATFORM_ADMIN = "PLATFORM_ADMIN"
-    ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN"
-    AGENT = "AGENT"
 
 
 class UserStatus(str, Enum):
@@ -27,70 +22,57 @@ class UserStatus(str, Enum):
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(
+    id: Mapped[str] = mapped_column(
         String(36),
         primary_key=True,
         default=lambda: str(uuid.uuid4()),
     )
 
-    organization_id = Column(
-        String(36),
-        ForeignKey("organizations.id"),
-        nullable=False,
-        index=True,
-    )
-
-    first_name = Column(
+    first_name: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
     )
 
-    last_name = Column(
+    last_name: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
     )
 
-    email = Column(
+    email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
         nullable=False,
         index=True,
     )
 
-    password_hash = Column(
+    password_hash: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
     )
 
-    role = Column(
-        SqlEnum(UserRole),
-        nullable=False,
-        default=UserRole.AGENT,
-    )
-
-    status = Column(
+    status: Mapped[UserStatus] = mapped_column(
         SqlEnum(UserStatus),
         nullable=False,
         default=UserStatus.INVITED,
     )
 
-    last_login = Column(
+    last_login: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
 
-    created_at = Column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
     )
 
-    updated_at = Column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
     )
 
-    archived_at = Column(
+    archived_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
