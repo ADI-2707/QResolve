@@ -38,6 +38,7 @@ class UserRepository:
             .first()
         )
 
+
     def get_by_email(
         self,
         email: str,
@@ -48,6 +49,18 @@ class UserRepository:
             .filter(User.email == email)
             .first()
         )
+
+
+    def exists_by_email(
+        self,
+        email: str,
+    ) -> bool:
+
+        return (
+            self.get_by_email(email)
+            is not None
+        )
+
 
     def list_by_organization(
         self,
@@ -60,7 +73,9 @@ class UserRepository:
                 User.organization_id == organization_id,
                 User.status != UserStatus.ARCHIVED,
             )
-            .order_by(User.first_name)
+            .order_by(
+                User.first_name
+            )
             .all()
         )
 
@@ -75,6 +90,7 @@ class UserRepository:
 
         return user
 
+
     def update_last_login(
         self,
         user: User,
@@ -86,6 +102,7 @@ class UserRepository:
         self.db.refresh(user)
 
         return user
+
 
     def archive(
         self,
