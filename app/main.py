@@ -11,7 +11,7 @@ from app.database import (
 
 import app.models
 
-from app.config import (
+from app.core.config import (
     API_TITLE,
     API_DESCRIPTION,
     API_VERSION,
@@ -20,12 +20,12 @@ from app.config import (
     API_TAGS,
 )
 
-from app.exceptions import (
+from app.core.exceptions import (
     validation_exception_handler,
     generic_exception_handler,
 )
 
-from app.logger import logger
+from app.core.logger import logger
 
 from app.predictor import predict_priority
 
