@@ -7,6 +7,7 @@ from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db.database import Base
@@ -64,4 +65,9 @@ class Organization(Base):
     retention_until: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
+    )
+
+    users = relationship(
+        "User",
+        back_populates="organization",
     )
