@@ -1,26 +1,29 @@
-from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
+
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
 
 
 class TicketRequest(BaseModel):
     text: str = Field(
         ...,
-        description="Complete support ticket text"
+        description="Complete support ticket text",
     )
 
     type: str = Field(
         ...,
-        description="Ticket type"
+        description="Ticket type",
     )
 
     queue: str = Field(
         ...,
-        description="Support queue"
+        description="Support queue",
     )
 
     tag_1: str = Field(
         ...,
-        description="Primary tag"
+        description="Primary tag",
     )
 
     tag_2: str = "Unknown"
@@ -33,19 +36,21 @@ class PredictionResponse(BaseModel):
 
 
 class PredictionHistoryResponse(BaseModel):
-
     id: int
+
     text: str
     type: str
     queue: str
+
     tag_1: str
     tag_2: str | None
     tag_3: str | None
     tag_4: str | None
+
     predicted_priority: str
+
     created_at: datetime
 
-
     model_config = ConfigDict(
-        from_attributes=True
+        from_attributes=True,
     )
