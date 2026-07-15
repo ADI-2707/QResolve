@@ -55,16 +55,23 @@ def get_user_service(
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@router.post(
+    "",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_user(
     payload: UserCreate,
-    service: UserService = Depends(
-        get_user_service
-    ),
+    db: Session = Depends(get_db),
 ):
+
+    service = UserService(
+        UserRepository(db)
+    )
 
     try:
 
-        return service.create(
+        user = service.create(
             organization_id=payload.organization_id,
             first_name=payload.first_name,
             last_name=payload.last_name,
@@ -72,12 +79,25 @@ def create_user(
             password=payload.password,
         )
 
+        db.commit()
+
+        db.refresh(user)
+
+        return user
+
     except ValueError as error:
+
+        db.rollback()
 
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error),
         )
+
+    except Exception:
+
+        db.rollback()
+        raise
 
 
 

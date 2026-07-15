@@ -15,6 +15,11 @@ from .user import (
     UserResponse,
 )
 
+from .auth import (
+    LoginRequest,
+    TokenResponse,
+)
+
 __all__ = [
     "OrganizationCreate",
     "OrganizationResponse",
@@ -24,4 +29,6 @@ __all__ = [
     "PredictionHistoryResponse",
     "UserCreate",
     "UserResponse",
+    "LoginRequest",
+    "TokenResponse",
     ]

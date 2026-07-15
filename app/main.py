@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from app.api import (
     organization_router,
     user_router,
+    auth_router,
 )
 
 from app.db.database import (
@@ -72,6 +73,10 @@ app.include_router(
 
 app.include_router(
     user_router
+)
+
+app.include_router(
+    auth_router
 )
 
 app.add_exception_handler(

@@ -1,12 +1,9 @@
-from argon2 import PasswordHasher
-
 from app.models import User
 from app.models import UserStatus
 
 from app.repositories import UserRepository
 
-
-password_hasher = PasswordHasher()
+from app.core.security import hash_password
 
 
 class UserService:
@@ -27,7 +24,9 @@ class UserService:
         password: str,
     ) -> User:
 
-        if self.repository.exists_by_email(email):
+        if self.repository.exists_by_email(
+            email
+        ):
             raise ValueError(
                 "Email already exists"
             )
@@ -38,7 +37,9 @@ class UserService:
             first_name=first_name,
             last_name=last_name,
             email=email,
-            password_hash=password_hasher.hash(password),
+            password_hash=hash_password(
+                password
+            ),
             status=UserStatus.INVITED,
         )
 
@@ -77,7 +78,8 @@ class UserService:
             user_id
         )
 
-        if not user:
+
+        if user is None:
             return None
 
 
