@@ -10,6 +10,11 @@ from .prediction import (
     PredictionHistoryResponse,
 )
 
+from .user import (
+    UserCreate,
+    UserResponse,
+)
+
 __all__ = [
     "OrganizationCreate",
     "OrganizationResponse",
@@ -17,4 +22,6 @@ __all__ = [
     "TicketRequest",
     "PredictionResponse",
     "PredictionHistoryResponse",
-]
+    "UserCreate",
+    "UserResponse",
+    ]

@@ -4,7 +4,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
-from app.api.organization import router as organization_router
+from app.api import (
+    organization_router,
+    user_router,
+)
 
 from app.db.database import (
     SessionLocal,
@@ -65,6 +68,10 @@ app = FastAPI(
 
 app.include_router(
     organization_router
+)
+
+app.include_router(
+    user_router
 )
 
 app.add_exception_handler(
