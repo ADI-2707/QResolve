@@ -1,3 +1,7 @@
+from .membership import Membership
+from .membership import MembershipRole
+from .membership import MembershipStatus
+
 from .organization import Organization
 from .organization import OrganizationStatus
 
@@ -8,8 +12,14 @@ from .user import UserStatus
 
 __all__ = [
     "Prediction",
+
     "Organization",
     "OrganizationStatus",
+
     "User",
     "UserStatus",
+
+    "Membership",
+    "MembershipRole",
+    "MembershipStatus",
 ]
