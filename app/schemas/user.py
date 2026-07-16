@@ -7,8 +7,6 @@ from app.models import UserStatus
 
 class UserCreate(BaseModel):
 
-    organization_id: str
-
     first_name: str = Field(
         min_length=2,
         max_length=100,

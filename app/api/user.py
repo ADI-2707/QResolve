@@ -6,13 +6,9 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
-
 from app.api.dependencies import get_current_user
-
 from app.db.database import get_db
-
 from app.models import User
-
 from app.repositories import UserRepository
 from app.services import UserService
 
@@ -49,7 +45,7 @@ def create_user(
 ):
     try:
         return service.create(
-            organization_id=payload.organization_id,
+            organization_id=current_user.organization_id,
             first_name=payload.first_name,
             last_name=payload.last_name,
             email=payload.email,
