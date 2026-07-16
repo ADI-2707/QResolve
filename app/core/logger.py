@@ -1,6 +1,6 @@
 import logging
 
-from app.config import LOG_LEVEL, LOGS_DIR
+from app.core.config import LOG_LEVEL, LOGS_DIR
 
 LOGS_DIR.mkdir(exist_ok=True)
 

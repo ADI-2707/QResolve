@@ -34,10 +34,10 @@ qresolve.db
 .env
 
 # Training artifacts
-models/X_train.pkl
-models/X_test.pkl
-models/y_train.pkl
-models/y_test.pkl
+artifacts/X_train.pkl
+artifacts/X_test.pkl
+artifacts/y_train.pkl
+artifacts/y_test.pkl
 
 # Documentation
 docs/

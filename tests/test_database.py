@@ -1,6 +1,6 @@
 from sqlalchemy import inspect
 
-from app.database import engine
+from app.db.database import engine
 
 
 def test_database_tables_exist():

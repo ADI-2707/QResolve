@@ -2,7 +2,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
-from app.logger import logger
+from app.core.logger import logger
 
 
 async def validation_exception_handler(
