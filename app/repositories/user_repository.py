@@ -1,9 +1,12 @@
 from datetime import datetime
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import User
-from app.models import UserStatus
+from app.models import (
+    User,
+    UserStatus,
+)
 
 
 class UserRepository:
@@ -13,7 +16,6 @@ class UserRepository:
         db: Session,
     ):
         self.db = db
-
 
     def create(
         self,
@@ -26,30 +28,39 @@ class UserRepository:
 
         return user
 
-
     def get_by_id(
         self,
         user_id: str,
     ) -> User | None:
 
-        return (
-            self.db.query(User)
-            .filter(User.id == user_id)
-            .first()
+        statement = (
+            select(User)
+            .where(
+                User.id == user_id,
+            )
         )
 
+        return (
+            self.db.execute(statement)
+            .scalar_one_or_none()
+        )
 
     def get_by_email(
         self,
         email: str,
     ) -> User | None:
 
-        return (
-            self.db.query(User)
-            .filter(User.email == email)
-            .first()
+        statement = (
+            select(User)
+            .where(
+                User.email == email,
+            )
         )
 
+        return (
+            self.db.execute(statement)
+            .scalar_one_or_none()
+        )
 
     def exists_by_email(
         self,
@@ -61,24 +72,27 @@ class UserRepository:
             is not None
         )
 
-
     def list_by_organization(
         self,
         organization_id: str,
     ) -> list[User]:
 
-        return (
-            self.db.query(User)
-            .filter(
+        statement = (
+            select(User)
+            .where(
                 User.organization_id == organization_id,
                 User.status != UserStatus.ARCHIVED,
             )
             .order_by(
-                User.first_name
+                User.first_name,
             )
-            .all()
         )
 
+        return list(
+            self.db.execute(statement)
+            .scalars()
+            .all()
+        )
 
     def update(
         self,
@@ -89,7 +103,6 @@ class UserRepository:
         self.db.refresh(user)
 
         return user
-
 
     def update_last_login(
         self,
@@ -102,7 +115,6 @@ class UserRepository:
         self.db.refresh(user)
 
         return user
-
 
     def archive(
         self,

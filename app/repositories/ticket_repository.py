@@ -1,9 +1,12 @@
-from sqlalchemy import or_
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Ticket
-from app.models import TicketPriority
-from app.models import TicketStatus
+from app.models import (
+    Ticket,
+    TicketPriority,
+    TicketStatus,
+)
+
 from app.repositories.base_repository import BaseRepository
 
 
@@ -23,11 +26,19 @@ class TicketRepository(BaseRepository[Ticket]):
         organization_id: str,
     ) -> list[Ticket]:
 
-        return (
-            self.db.query(Ticket)
-            .filter(
+        statement = (
+            select(Ticket)
+            .where(
                 Ticket.organization_id == organization_id,
             )
+            .order_by(
+                Ticket.created_at.desc()
+            )
+        )
+
+        return list(
+            self.db.execute(statement)
+            .scalars()
             .all()
         )
 
@@ -37,12 +48,20 @@ class TicketRepository(BaseRepository[Ticket]):
         status: TicketStatus,
     ) -> list[Ticket]:
 
-        return (
-            self.db.query(Ticket)
-            .filter(
+        statement = (
+            select(Ticket)
+            .where(
                 Ticket.organization_id == organization_id,
                 Ticket.status == status,
             )
+            .order_by(
+                Ticket.created_at.desc()
+            )
+        )
+
+        return list(
+            self.db.execute(statement)
+            .scalars()
             .all()
         )
 
@@ -52,12 +71,20 @@ class TicketRepository(BaseRepository[Ticket]):
         priority: TicketPriority,
     ) -> list[Ticket]:
 
-        return (
-            self.db.query(Ticket)
-            .filter(
+        statement = (
+            select(Ticket)
+            .where(
                 Ticket.organization_id == organization_id,
                 Ticket.priority == priority,
             )
+            .order_by(
+                Ticket.created_at.desc()
+            )
+        )
+
+        return list(
+            self.db.execute(statement)
+            .scalars()
             .all()
         )
 
@@ -67,12 +94,20 @@ class TicketRepository(BaseRepository[Ticket]):
         assignee_id: str,
     ) -> list[Ticket]:
 
-        return (
-            self.db.query(Ticket)
-            .filter(
+        statement = (
+            select(Ticket)
+            .where(
                 Ticket.organization_id == organization_id,
                 Ticket.assigned_to == assignee_id,
             )
+            .order_by(
+                Ticket.created_at.desc()
+            )
+        )
+
+        return list(
+            self.db.execute(statement)
+            .scalars()
             .all()
         )
 
@@ -82,16 +117,24 @@ class TicketRepository(BaseRepository[Ticket]):
         query: str,
     ) -> list[Ticket]:
 
-        return (
-            self.db.query(Ticket)
-            .filter(
+        statement = (
+            select(Ticket)
+            .where(
                 Ticket.organization_id == organization_id,
             )
-            .filter(
+            .where(
                 or_(
                     Ticket.subject.ilike(f"%{query}%"),
                     Ticket.description.ilike(f"%{query}%"),
                 )
             )
+            .order_by(
+                Ticket.created_at.desc()
+            )
+        )
+
+        return list(
+            self.db.execute(statement)
+            .scalars()
             .all()
         )
