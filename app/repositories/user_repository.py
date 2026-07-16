@@ -8,41 +8,18 @@ from app.models import (
     UserStatus,
 )
 
+from app.repositories.base_repository import BaseRepository
 
-class UserRepository:
+
+class UserRepository(BaseRepository[User]):
 
     def __init__(
         self,
         db: Session,
     ):
-        self.db = db
-
-    def create(
-        self,
-        user: User,
-    ) -> User:
-
-        self.db.add(user)
-        self.db.flush()
-        self.db.refresh(user)
-
-        return user
-
-    def get_by_id(
-        self,
-        user_id: str,
-    ) -> User | None:
-
-        statement = (
-            select(User)
-            .where(
-                User.id == user_id,
-            )
-        )
-
-        return (
-            self.db.execute(statement)
-            .scalar_one_or_none()
+        super().__init__(
+            db=db,
+            model=User,
         )
 
     def get_by_email(
@@ -93,16 +70,6 @@ class UserRepository:
             .scalars()
             .all()
         )
-
-    def update(
-        self,
-        user: User,
-    ) -> User:
-
-        self.db.flush()
-        self.db.refresh(user)
-
-        return user
 
     def update_last_login(
         self,

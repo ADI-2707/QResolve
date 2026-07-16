@@ -1,15 +1,21 @@
 from slugify import slugify
 
 from app.models import Organization
+
 from app.repositories import OrganizationRepository
 
+from .base_service import BaseService
 
-class OrganizationService:
+
+class OrganizationService(
+    BaseService[Organization],
+):
+
     def __init__(
         self,
         repository: OrganizationRepository,
     ):
-        self.repository = repository
+        super().__init__(repository)
 
     def create(
         self,
@@ -25,7 +31,7 @@ class OrganizationService:
             slug=slug,
         )
 
-        return self.repository.create(
+        return super().create(
             organization,
         )
 
@@ -34,7 +40,7 @@ class OrganizationService:
         organization_id: str,
     ) -> Organization | None:
 
-        return self.repository.get_by_id(
+        return self.get_by_id(
             organization_id,
         )
 
@@ -47,13 +53,9 @@ class OrganizationService:
             slug,
         )
 
-    def list(self) -> list[Organization]:
-
-        return self.repository.list()
-
     def _generate_unique_slug(
-            self,
-            organization_name: str,
+        self,
+        organization_name: str,
     ) -> str:
 
         base_slug = slugify(
@@ -61,6 +63,7 @@ class OrganizationService:
         )
 
         if not base_slug:
+
             raise ValueError(
                 "Organization name cannot generate a valid slug"
             )
@@ -70,8 +73,9 @@ class OrganizationService:
         counter = 2
 
         while self.repository.exists_by_slug(
-                slug,
+            slug,
         ):
+
             slug = (
                 f"{base_slug}-{counter}"
             )

@@ -1,38 +1,41 @@
 from datetime import datetime
 
+from sqlalchemy.exc import SQLAlchemyError
+
 from app.models import (
     Ticket,
+    TicketPriority,
     TicketStatus,
 )
 
 from app.repositories import TicketRepository
 
+from .base_service import BaseService
 
-class TicketService:
+
+class TicketService(
+    BaseService[Ticket],
+):
 
     def __init__(
         self,
         repository: TicketRepository,
     ):
-        self.repository = repository
+        super().__init__(repository)
 
     def create(
         self,
         ticket: Ticket,
     ) -> Ticket:
 
-        ticket = self.repository.create(ticket)
+        return super().create(ticket)
 
-        self.repository.db.commit()
-
-        return ticket
-
-    def get_by_id(
+    def get(
         self,
         ticket_id: str,
     ) -> Ticket | None:
 
-        return self.repository.get_by_id(ticket_id)
+        return self.get_by_id(ticket_id)
 
     def list_by_organization(
         self,
@@ -46,7 +49,7 @@ class TicketService:
     def list_by_status(
         self,
         organization_id: str,
-        status,
+        status: TicketStatus,
     ) -> list[Ticket]:
 
         return self.repository.list_by_status(
@@ -57,7 +60,7 @@ class TicketService:
     def list_by_priority(
         self,
         organization_id: str,
-        priority,
+        priority: TicketPriority,
     ) -> list[Ticket]:
 
         return self.repository.list_by_priority(
@@ -87,27 +90,35 @@ class TicketService:
             query,
         )
 
-    def update(
-        self,
-        ticket: Ticket,
-    ) -> Ticket:
-
-        ticket = self.repository.update(ticket)
-
-        self.repository.db.commit()
-
-        return ticket
-
     def archive(
         self,
-        ticket: Ticket,
-    ) -> Ticket:
+        ticket_id: str,
+    ) -> Ticket | None:
 
-        ticket.status = TicketStatus.ARCHIVED
-        ticket.archived_at = datetime.utcnow()
+        ticket = self.get_by_id(ticket_id)
 
-        ticket = self.repository.update(ticket)
+        if ticket is None:
+            return None
 
-        self.repository.db.commit()
+        try:
 
-        return ticket
+            ticket.status = TicketStatus.ARCHIVED
+            ticket.archived_at = datetime.utcnow()
+
+            ticket = self.repository.update(
+                ticket,
+            )
+
+            self.repository.db.commit()
+
+            self.repository.db.refresh(
+                ticket,
+            )
+
+            return ticket
+
+        except SQLAlchemyError:
+
+            self.repository.db.rollback()
+
+            raise

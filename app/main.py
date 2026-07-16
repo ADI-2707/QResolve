@@ -5,9 +5,10 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
 from app.api import (
-    organization_router,
-    user_router,
     auth_router,
+    organization_router,
+    ticket_router,
+    user_router,
 )
 
 from app.db.database import (
@@ -77,6 +78,10 @@ app.include_router(
 
 app.include_router(
     auth_router
+)
+
+app.include_router(
+    ticket_router,
 )
 
 app.add_exception_handler(
