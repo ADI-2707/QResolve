@@ -10,6 +10,12 @@ from .prediction import Prediction
 from .user import User
 from .user import UserStatus
 
+from .ticket import Ticket
+from .ticket import TicketStatus
+from .ticket import TicketPriority
+from .ticket import TicketCategory
+
+
 __all__ = [
     "Prediction",
 
@@ -22,4 +28,9 @@ __all__ = [
     "Membership",
     "MembershipRole",
     "MembershipStatus",
+
+    "Ticket",
+    "TicketStatus",
+    "TicketPriority",
+    "TicketCategory",
 ]

@@ -114,3 +114,15 @@ class User(Base):
         "Organization",
         back_populates="users",
     )
+
+    created_tickets = relationship(
+        "Ticket",
+        foreign_keys="Ticket.created_by",
+        back_populates="creator",
+    )
+
+    assigned_tickets = relationship(
+        "Ticket",
+        foreign_keys="Ticket.assigned_to",
+        back_populates="assignee",
+    )
