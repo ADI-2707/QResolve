@@ -1,7 +1,6 @@
-from typing import Generic
-from typing import Type
-from typing import TypeVar
+from typing import Generic, Type, TypeVar
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.database import Base
@@ -28,30 +27,37 @@ class BaseRepository(Generic[ModelType]):
     ) -> ModelType:
 
         self.db.add(entity)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(entity)
 
         return entity
 
     def get_by_id(
         self,
-        entity_id,
+        entity_id: str,
     ) -> ModelType | None:
 
-        return (
-            self.db.query(self.model)
-            .filter(
+        statement = (
+            select(self.model)
+            .where(
                 self.model.id == entity_id,
             )
-            .first()
+        )
+
+        return (
+            self.db.execute(statement)
+            .scalar_one_or_none()
         )
 
     def list(
         self,
     ) -> list[ModelType]:
 
-        return (
-            self.db.query(self.model)
+        statement = select(self.model)
+
+        return list(
+            self.db.execute(statement)
+            .scalars()
             .all()
         )
 
@@ -60,7 +66,7 @@ class BaseRepository(Generic[ModelType]):
         entity: ModelType,
     ) -> ModelType:
 
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(entity)
 
         return entity
@@ -71,4 +77,4 @@ class BaseRepository(Generic[ModelType]):
     ) -> None:
 
         self.db.delete(entity)
-        self.db.commit()
+        self.db.flush()

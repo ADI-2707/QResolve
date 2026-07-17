@@ -8,6 +8,9 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from app.db.database import SessionLocal
+from app.api.dependencies import get_current_session
+from app.core.authorization import AuthenticatedSession, require_role
+from app.models import MembershipRole
 
 from app.repositories import OrganizationRepository
 from app.services import OrganizationService
@@ -60,7 +63,9 @@ def create_organization(
     service: OrganizationService = Depends(
         get_organization_service
     ),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    require_role(session, MembershipRole.PLATFORM_ADMIN)
 
     return service.create(
         payload.name
@@ -76,7 +81,9 @@ def list_organizations(
     service: OrganizationService = Depends(
         get_organization_service
     ),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    require_role(session, MembershipRole.PLATFORM_ADMIN)
 
     return service.list()
 
@@ -91,7 +98,13 @@ def get_organization(
     service: OrganizationService = Depends(
         get_organization_service
     ),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    if (
+        session.role != MembershipRole.PLATFORM_ADMIN
+        and organization_id != session.organization.id
+    ):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
     organization = service.get(
         organization_id
@@ -116,7 +129,13 @@ def get_organization_by_slug(
     service: OrganizationService = Depends(
         get_organization_service
     ),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    if (
+        session.role != MembershipRole.PLATFORM_ADMIN
+        and slug != session.organization.slug
+    ):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
     organization = service.get_by_slug(
         slug

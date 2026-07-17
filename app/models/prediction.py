@@ -1,4 +1,7 @@
+from sqlalchemy import Boolean
 from sqlalchemy import DateTime
+from sqlalchemy import Float
+from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped
@@ -14,6 +17,20 @@ class Prediction(Base):
     id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True,
+        index=True,
+    )
+
+    organization_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("organizations.id"),
+        nullable=True,
+        index=True,
+    )
+
+    ticket_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("tickets.id"),
+        nullable=True,
         index=True,
     )
 
@@ -55,6 +72,33 @@ class Prediction(Base):
     predicted_priority: Mapped[str] = mapped_column(
         String,
         nullable=False,
+    )
+
+    predicted_department: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    confidence_score: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+
+    model_version: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+
+    overridden: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    overridden_by: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("users.id"),
+        nullable=True,
     )
 
     created_at: Mapped[DateTime] = mapped_column(

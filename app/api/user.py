@@ -6,14 +6,15 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_session
+from app.core.authorization import AuthenticatedSession, require_role
 from app.db.database import get_db
-from app.models import User
+from app.models import MembershipRole
 from app.repositories import UserRepository
 from app.services import UserService
+from app.services.audit_service import AuditService
 
 from app.schemas.user import (
-    UserCreate,
     UserResponse,
 )
 
@@ -33,32 +34,6 @@ def get_user_service(
     return UserService(repository)
 
 
-@router.post(
-    "",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def create_user(
-    payload: UserCreate,
-    service: UserService = Depends(get_user_service),
-    current_user: User = Depends(get_current_user),
-):
-    try:
-        return service.create(
-            organization_id=current_user.organization_id,
-            first_name=payload.first_name,
-            last_name=payload.last_name,
-            email=payload.email,
-            password=payload.password,
-        )
-
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error),
-        )
-
-
 @router.get(
     "/{user_id}",
     response_model=UserResponse,
@@ -66,8 +41,11 @@ def create_user(
 def get_user(
     user_id: str,
     service: UserService = Depends(get_user_service),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+
+    if session.role != MembershipRole.ORGANIZATION_ADMIN and user_id != session.user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
     user = service.get(user_id)
 
@@ -77,6 +55,9 @@ def get_user(
             status_code=404,
             detail="User not found",
         )
+
+    if user.organization_id != session.organization.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return user
 
@@ -88,11 +69,15 @@ def get_user(
 def list_users_by_organization(
     organization_id: str,
     service: UserService = Depends(get_user_service),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    require_role(session, MembershipRole.ORGANIZATION_ADMIN)
+
+    if organization_id != session.organization.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
     return service.list_by_organization(
-        organization_id
+        session.organization.id
     )
 
 
@@ -103,8 +88,19 @@ def list_users_by_organization(
 def archive_user(
     user_id: str,
     service: UserService = Depends(get_user_service),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    require_role(session, MembershipRole.ORGANIZATION_ADMIN)
+
+    if user_id == session.user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot archive your own account",
+        )
+
+    user = service.get(user_id)
+    if user is not None and user.organization_id != session.organization.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     user = service.archive(
         user_id
@@ -116,5 +112,13 @@ def archive_user(
             status_code=404,
             detail="User not found",
         )
+
+    AuditService(service.repository.db).record(
+        organization_id=session.organization.id,
+        actor_id=session.user.id,
+        action="USER_ARCHIVED",
+        entity_type="USER",
+        entity_id=user.id,
+    )
 
     return user

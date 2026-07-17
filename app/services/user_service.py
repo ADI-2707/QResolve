@@ -1,18 +1,24 @@
 from app.core.security import hash_password
 
-from app.models import User
-from app.models import UserStatus
+from app.models import (
+    User,
+    UserStatus,
+)
 
 from app.repositories import UserRepository
 
+from .base_service import BaseService
 
-class UserService:
+
+class UserService(
+    BaseService[User],
+):
 
     def __init__(
         self,
         repository: UserRepository,
     ):
-        self.repository = repository
+        super().__init__(repository)
 
     def create(
         self,
@@ -23,7 +29,9 @@ class UserService:
         password: str,
     ) -> User:
 
-        if self.repository.exists_by_email(email):
+        if self.repository.exists_by_email(
+            email,
+        ):
             raise ValueError(
                 "Email already exists"
             )
@@ -33,23 +41,24 @@ class UserService:
             first_name=first_name,
             last_name=last_name,
             email=email,
-            password_hash=hash_password(password),
+            password_hash=hash_password(
+                password,
+            ),
             status=UserStatus.INVITED,
         )
 
-        user = self.repository.create(user)
-
-        self.repository.db.commit()
-        self.repository.db.refresh(user)
-
-        return user
+        return super().create(
+            user,
+        )
 
     def get(
         self,
         user_id: str,
     ) -> User | None:
 
-        return self.repository.get_by_id(user_id)
+        return self.get_by_id(
+            user_id,
+        )
 
     def list_by_organization(
         self,
@@ -57,7 +66,7 @@ class UserService:
     ) -> list[User]:
 
         return self.repository.list_by_organization(
-            organization_id
+            organization_id,
         )
 
     def archive(
@@ -65,14 +74,30 @@ class UserService:
         user_id: str,
     ) -> User | None:
 
-        user = self.repository.get_by_id(user_id)
+        user = self.get_by_id(
+            user_id,
+        )
 
         if user is None:
+
             return None
 
-        user = self.repository.archive(user)
+        try:
 
-        self.repository.db.commit()
-        self.repository.db.refresh(user)
+            user = self.repository.archive(
+                user,
+            )
 
-        return user
+            self.repository.db.commit()
+
+            self.repository.db.refresh(
+                user,
+            )
+
+            return user
+
+        except Exception:
+
+            self.repository.db.rollback()
+
+            raise

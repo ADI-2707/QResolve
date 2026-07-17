@@ -71,3 +71,9 @@ class Organization(Base):
         "User",
         back_populates="organization",
     )
+
+    tickets = relationship(
+        "Ticket",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )

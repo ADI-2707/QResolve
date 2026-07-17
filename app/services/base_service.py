@@ -1,12 +1,15 @@
 from typing import Generic
 from typing import TypeVar
 
+from sqlalchemy.exc import SQLAlchemyError
+
 from app.repositories.base_repository import BaseRepository
 
 T = TypeVar("T")
 
 
 class BaseService(Generic[T]):
+
     def __init__(
         self,
         repository: BaseRepository[T],
@@ -17,27 +20,53 @@ class BaseService(Generic[T]):
         self,
         entity: T,
     ) -> T:
-        return self.repository.create(entity)
+
+        try:
+            entity = self.repository.create(entity)
+
+            self.repository.db.commit()
+
+            self.repository.db.refresh(entity)
+
+            return entity
+
+        except SQLAlchemyError:
+
+            self.repository.db.rollback()
+
+            raise
 
     def get_by_id(
         self,
-        entity_id,
+        entity_id: str,
     ) -> T | None:
-        return self.repository.get_by_id(entity_id)
+
+        return self.repository.get_by_id(
+            entity_id,
+        )
 
     def list(
         self,
     ) -> list[T]:
+
         return self.repository.list()
 
     def update(
         self,
         entity: T,
     ) -> T:
-        return self.repository.update(entity)
 
-    def delete(
-        self,
-        entity: T,
-    ) -> None:
-        self.repository.delete(entity)
+        try:
+            entity = self.repository.update(entity)
+
+            self.repository.db.commit()
+
+            self.repository.db.refresh(entity)
+
+            return entity
+
+        except SQLAlchemyError:
+
+            self.repository.db.rollback()
+
+            raise

@@ -20,6 +20,15 @@ from .auth import (
     TokenResponse,
 )
 
+from .ticket import (
+    TicketCreate,
+    TicketUpdate,
+    TicketResponse,
+    TicketListResponse,
+)
+
+from .ticket_assignment import TicketAssignment
+
 __all__ = [
     "OrganizationCreate",
     "OrganizationResponse",
@@ -31,4 +40,9 @@ __all__ = [
     "UserResponse",
     "LoginRequest",
     "TokenResponse",
-    ]
+    "TicketCreate",
+    "TicketUpdate",
+    "TicketResponse",
+    "TicketListResponse",
+    "TicketAssignment",
+]

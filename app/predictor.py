@@ -37,6 +37,13 @@ metadata_columns = [
 
 def predict_priority(ticket: dict) -> str:
 
+    priority, _ = predict_priority_with_confidence(ticket)
+
+    return priority
+
+
+def predict_priority_with_confidence(ticket: dict) -> tuple[str, float | None]:
+
     df = pd.DataFrame([ticket])
 
     metadata = pd.get_dummies(
@@ -58,6 +65,13 @@ def predict_priority(ticket: dict) -> str:
 
     prediction = model.predict(X)
 
-    return priority_encoder.inverse_transform(
+    confidence = None
+
+    if hasattr(model, "predict_proba"):
+        confidence = float(model.predict_proba(X)[0].max())
+
+    priority = priority_encoder.inverse_transform(
         prediction
     )[0]
+
+    return priority, confidence

@@ -6,12 +6,26 @@ from .organization import Organization
 from .organization import OrganizationStatus
 
 from .prediction import Prediction
+from .invitation import Invitation
+from .audit_log import AuditLog
+from .comment import Comment
+from .department import Department
 
 from .user import User
 from .user import UserStatus
 
+from .ticket import Ticket
+from .ticket import TicketStatus
+from .ticket import TicketPriority
+from .ticket import TicketCategory
+
+
 __all__ = [
     "Prediction",
+    "Invitation",
+    "AuditLog",
+    "Comment",
+    "Department",
 
     "Organization",
     "OrganizationStatus",
@@ -22,4 +36,9 @@ __all__ = [
     "Membership",
     "MembershipRole",
     "MembershipStatus",
+
+    "Ticket",
+    "TicketStatus",
+    "TicketPriority",
+    "TicketCategory",
 ]
