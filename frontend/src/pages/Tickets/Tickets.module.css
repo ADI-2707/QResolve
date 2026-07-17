@@ -27,3 +27,16 @@
     var(--color-gray-500);
 
 }
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-gray-500);
+}
+
+.pagination div {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
