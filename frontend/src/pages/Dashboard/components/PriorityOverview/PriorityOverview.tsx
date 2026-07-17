@@ -1,83 +1,15 @@
 import Badge from "../../../../components/common/ui/Badge/Badge";
 import Card from "../../../../components/common/ui/Card/Card";
-
 import styles from "./PriorityOverview.module.css";
 
+const variants = { CRITICAL: "danger", HIGH: "warning", MEDIUM: "info", LOW: "success" } as const;
 
-const priorities = [
-
-    {
-        name:"Critical",
-        count:12,
-        type:"danger"
-    },
-
-    {
-        name:"High",
-        count:34,
-        type:"warning"
-    },
-
-    {
-        name:"Medium",
-        count:56,
-        type:"info"
-    },
-
-    {
-        name:"Low",
-        count:78,
-        type:"success"
-    }
-
-];
-
-
-const PriorityOverview = ()=>{
-
-
-    return (
-
-        <Card title="Priority Overview">
-
-
-            <div className={styles.grid}>
-
-
-                {
-                    priorities.map((priority)=>(
-
-
-                        <div
-                            key={priority.name}
-                            className={styles.item}
-                        >
-
-                            <Badge variant={priority.type as "success" | "warning" | "danger" | "info"}>
-                                {priority.name}
-                            </Badge>
-
-
-                            <span>
-                                {priority.count}
-                            </span>
-
-
-                        </div>
-
-
-                    ))
-                }
-
-
-            </div>
-
-
-        </Card>
-
-    );
-
-};
-
+const PriorityOverview = ({ priorities }: { priorities: Record<string, number> }) => <Card title="Priority overview">
+    <div className={styles.grid}>
+        {Object.entries(variants).map(([priority, variant]) => <div key={priority} className={styles.item}>
+            <Badge variant={variant}>{priority.toLowerCase()}</Badge><span>{priorities[priority] ?? 0}</span>
+        </div>)}
+    </div>
+</Card>;
 
 export default PriorityOverview;
