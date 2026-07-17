@@ -251,8 +251,6 @@ The model artifacts in `artifacts/` (TF-IDF vectorizer, label/priority encoders,
 
 The full modeling journey — EDA, dataset validation, feature engineering, training, evaluation, and building the inference pipeline — is documented step-by-step across the notebooks in `notebook/` (`01_eda.ipynb` through `11_inference_pipeline.ipynb`), along with two written reports in `docs/` (`dataset_investigation_report.md`, `baseline_experiment_report.md`).
 
-> **Known issue:** `app/predictor.py` currently loads a `random_forest.pkl` file that is not present in `artifacts/` (the committed artifacts are `customer_satisfaction_model.pkl`, `tfidf_vectorizer.pkl`, `priority_encoder.pkl`, `label_encoders.pkl`, and `metadata_feature_names.pkl`). This needs to be reconciled — either by regenerating/committing `random_forest.pkl` or updating `predictor.py` to load `customer_satisfaction_model.pkl` — before `/predict` will run cleanly in a fresh environment.
-
 ---
 
 ## Testing
