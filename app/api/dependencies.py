@@ -29,7 +29,7 @@ from app.repositories import UserRepository
 
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/auth/login",
+    tokenUrl="/api/v1/auth/login",
 )
 
 

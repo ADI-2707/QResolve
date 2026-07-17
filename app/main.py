@@ -27,6 +27,7 @@ from app.core.config import (
     API_TITLE,
     API_DESCRIPTION,
     API_VERSION,
+    API_V1_PREFIX,
     API_CONTACT,
     API_LICENSE,
     API_TAGS,
@@ -75,43 +76,53 @@ app = FastAPI(
 )
 
 app.include_router(
-    organization_router
+    organization_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
-    user_router
+    user_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
-    auth_router
+    auth_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
     audit_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
     analytics_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
     invitation_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
     membership_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
     comment_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
     department_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.include_router(
     ticket_router,
+    prefix=API_V1_PREFIX,
 )
 
 app.add_exception_handler(

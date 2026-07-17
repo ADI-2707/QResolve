@@ -22,6 +22,11 @@ API_VERSION = os.getenv(
     "1.0.0",
 )
 
+API_V1_PREFIX = os.getenv(
+    "API_V1_PREFIX",
+    "/api/v1",
+)
+
 HOST = os.getenv(
     "HOST",
     "0.0.0.0",
