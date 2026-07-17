@@ -12,9 +12,9 @@ from app.db.database import get_db
 from app.models import MembershipRole
 from app.repositories import UserRepository
 from app.services import UserService
+from app.services.audit_service import AuditService
 
 from app.schemas.user import (
-    UserCreate,
     UserResponse,
 )
 
@@ -32,33 +32,6 @@ def get_user_service(
     repository = UserRepository(db)
 
     return UserService(repository)
-
-
-@router.post(
-    "",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def create_user(
-    payload: UserCreate,
-    service: UserService = Depends(get_user_service),
-    session: AuthenticatedSession = Depends(get_current_session),
-):
-    require_role(session, MembershipRole.ORGANIZATION_ADMIN)
-    try:
-        return service.create(
-            organization_id=session.organization.id,
-            first_name=payload.first_name,
-            last_name=payload.last_name,
-            email=payload.email,
-            password=payload.password,
-        )
-
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error),
-        )
 
 
 @router.get(
@@ -119,6 +92,12 @@ def archive_user(
 ):
     require_role(session, MembershipRole.ORGANIZATION_ADMIN)
 
+    if user_id == session.user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot archive your own account",
+        )
+
     user = service.get(user_id)
     if user is not None and user.organization_id != session.organization.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -133,5 +112,13 @@ def archive_user(
             status_code=404,
             detail="User not found",
         )
+
+    AuditService(service.repository.db).record(
+        organization_id=session.organization.id,
+        actor_id=session.user.id,
+        action="USER_ARCHIVED",
+        entity_type="USER",
+        entity_id=user.id,
+    )
 
     return user
