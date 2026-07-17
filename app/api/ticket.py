@@ -40,6 +40,8 @@ from app.services import TicketService
 from app.services.audit_service import AuditService
 from app.services.ticket_prediction_service import TicketPredictionService
 from app.schemas.ticket_prediction import TicketPredictionResponse
+from app.schemas.ticket_prediction import TicketPredictionOverride
+from app.models import Prediction
 
 
 router = APIRouter(
@@ -468,6 +470,70 @@ def predict_ticket(
             "ticket_id": ticket.id,
             "priority": prediction.predicted_priority,
             "confidence": prediction.confidence_score,
+        },
+    )
+    return prediction
+
+
+@router.post(
+    "/{ticket_id}/predictions/{prediction_id}/override",
+    response_model=TicketPredictionResponse,
+)
+def override_prediction(
+    ticket_id: str,
+    prediction_id: int,
+    payload: TicketPredictionOverride,
+    db: Session = Depends(get_db),
+    session: AuthenticatedSession = Depends(get_current_session),
+):
+    require_role(
+        session,
+        MembershipRole.ORGANIZATION_ADMIN,
+        MembershipRole.MANAGER,
+        MembershipRole.AGENT,
+    )
+    ticket = TicketRepository(db).get_by_id(ticket_id)
+    prediction = db.get(Prediction, prediction_id)
+    if (
+        ticket is None
+        or ticket.organization_id != session.organization.id
+        or prediction is None
+        or prediction.ticket_id != ticket.id
+        or prediction.organization_id != session.organization.id
+    ):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Prediction not found")
+
+    if session.role == MembershipRole.AGENT and ticket.assigned_to != session.user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Agents may only override predictions for tickets assigned to them",
+        )
+
+    department_id = payload.department_id
+    if department_id is not None:
+        department_id = _validated_department_id(db, department_id, session.organization.id)
+
+    try:
+        prediction = TicketPredictionService(db).override(
+            prediction,
+            ticket,
+            priority=payload.priority,
+            department_id=department_id,
+            overridden_by=session.user.id,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
+
+    AuditService(db).record(
+        organization_id=session.organization.id,
+        actor_id=session.user.id,
+        action="PREDICTION_OVERRIDDEN",
+        entity_type="PREDICTION",
+        entity_id=str(prediction.id),
+        details={
+            "ticket_id": ticket.id,
+            "priority": payload.priority.value,
+            "department_id": department_id,
         },
     )
     return prediction

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models import Prediction, Ticket
+from app.models import Prediction, Ticket, TicketPriority
 from app.predictor import predict_priority_with_confidence
 
 
@@ -38,6 +38,27 @@ class TicketPredictionService:
             model_version=MODEL_VERSION,
         )
         self.db.add(prediction)
+        self.db.commit()
+        self.db.refresh(prediction)
+        return prediction
+
+    def override(
+        self,
+        prediction: Prediction,
+        ticket: Ticket,
+        *,
+        priority: TicketPriority,
+        department_id: str | None,
+        overridden_by: str,
+    ) -> Prediction:
+        if prediction.overridden:
+            raise ValueError("This prediction has already been overridden")
+
+        ticket.priority = priority
+        if department_id is not None:
+            ticket.department_id = department_id
+        prediction.overridden = True
+        prediction.overridden_by = overridden_by
         self.db.commit()
         self.db.refresh(prediction)
         return prediction
