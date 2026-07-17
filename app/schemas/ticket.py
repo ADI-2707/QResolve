@@ -77,6 +77,8 @@ class TicketResponse(BaseModel):
 
     archived_at: datetime | None
 
+    resolved_at: datetime | None
+
 
 class TicketListResponse(BaseModel):
 

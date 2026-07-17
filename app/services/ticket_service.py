@@ -140,6 +140,48 @@ class TicketService(BaseService[Ticket]):
 
         return ticket
 
+    def claim(
+        self,
+        ticket_id: str,
+        user_id: str,
+    ) -> Ticket:
+        ticket = self.get(ticket_id)
+
+        if ticket is None:
+            raise ValueError("Ticket not found")
+        if ticket.status == TicketStatus.ARCHIVED:
+            raise ValueError("Archived tickets cannot be claimed")
+        if ticket.assigned_to is not None:
+            raise ValueError("Ticket is already assigned")
+
+        ticket.assigned_to = user_id
+        ticket.status = TicketStatus.IN_PROGRESS
+
+        return self.update(ticket)
+
+    def resolve(
+        self,
+        ticket_id: str,
+        actor_id: str,
+        *,
+        may_resolve_any_ticket: bool,
+    ) -> Ticket:
+        ticket = self.get(ticket_id)
+
+        if ticket is None:
+            raise ValueError("Ticket not found")
+        if ticket.status == TicketStatus.ARCHIVED:
+            raise ValueError("Archived tickets cannot be resolved")
+        if ticket.status in {TicketStatus.RESOLVED, TicketStatus.CLOSED}:
+            raise ValueError("Ticket is already resolved or closed")
+        if not may_resolve_any_ticket and ticket.assigned_to != actor_id:
+            raise ValueError("Agents may only resolve tickets assigned to them")
+
+        ticket.status = TicketStatus.RESOLVED
+        ticket.resolved_at = datetime.utcnow()
+
+        return self.update(ticket)
+
     def archive(
         self,
         ticket_id: str,

@@ -116,6 +116,11 @@ class Ticket(Base):
         nullable=True,
     )
 
+    resolved_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     organization = relationship(
         "Organization",
         back_populates="tickets",

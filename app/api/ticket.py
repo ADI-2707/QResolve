@@ -277,3 +277,64 @@ def assign_ticket(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error),
         )
+
+
+@router.post(
+    "/{ticket_id}/claim",
+    response_model=TicketResponse,
+)
+def claim_ticket(
+    ticket_id: str,
+    db: Session = Depends(get_db),
+    session: AuthenticatedSession = Depends(get_current_session),
+):
+    require_role(
+        session,
+        MembershipRole.ORGANIZATION_ADMIN,
+        MembershipRole.MANAGER,
+        MembershipRole.AGENT,
+    )
+    service = get_ticket_service(db)
+    ticket = service.get(ticket_id)
+
+    if ticket is None or ticket.organization_id != session.organization.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+
+    try:
+        return service.claim(ticket_id, session.user.id)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
+
+
+@router.post(
+    "/{ticket_id}/resolve",
+    response_model=TicketResponse,
+)
+def resolve_ticket(
+    ticket_id: str,
+    db: Session = Depends(get_db),
+    session: AuthenticatedSession = Depends(get_current_session),
+):
+    require_role(
+        session,
+        MembershipRole.ORGANIZATION_ADMIN,
+        MembershipRole.MANAGER,
+        MembershipRole.AGENT,
+    )
+    service = get_ticket_service(db)
+    ticket = service.get(ticket_id)
+
+    if ticket is None or ticket.organization_id != session.organization.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+
+    try:
+        return service.resolve(
+            ticket_id,
+            session.user.id,
+            may_resolve_any_ticket=session.role in {
+                MembershipRole.ORGANIZATION_ADMIN,
+                MembershipRole.MANAGER,
+            },
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
