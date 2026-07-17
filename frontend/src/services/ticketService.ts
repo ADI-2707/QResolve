@@ -15,3 +15,13 @@ export const createTicket = async (ticket: Pick<Ticket, "subject" | "description
     const response = await api.post<Ticket>("/tickets", ticket);
     return response.data;
 };
+
+export const claimTicket = async (ticketId: string) => {
+    const response = await api.post<Ticket>(`/tickets/${ticketId}/claim`);
+    return response.data;
+};
+
+export const resolveTicket = async (ticketId: string) => {
+    const response = await api.post<Ticket>(`/tickets/${ticketId}/resolve`);
+    return response.data;
+};

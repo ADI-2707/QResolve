@@ -7,6 +7,8 @@ import MainLayout from "../layouts/MainLayout/MainLayout";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Tickets from "../pages/Tickets/Tickets";
 import Login from "../pages/Login/Login";
+import Members from "../pages/Members/Members";
+import AuditLogs from "../pages/AuditLogs/AuditLogs";
 import ProtectedRoute from "./ProtectedRoute";
 
 
@@ -36,6 +38,16 @@ function AppRoutes() {
                 <Route
                     path="tickets"
                     element={<Tickets />}
+                />
+
+                <Route
+                    path="members"
+                    element={<Members />}
+                />
+
+                <Route
+                    path="audit"
+                    element={<AuditLogs />}
                 />
 
                 </Route>

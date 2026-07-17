@@ -10,8 +10,7 @@
 
     display:grid;
 
-    grid-template-columns:
-    120px 2fr 1fr 120px 120px;
+    grid-template-columns: 2fr 1fr 120px 100px 180px;
 
     align-items:center;
 
@@ -52,4 +51,8 @@
     background:
     var(--color-gray-50);
 
+}
+.actions {
+    display: flex;
+    gap: var(--space-2);
 }
