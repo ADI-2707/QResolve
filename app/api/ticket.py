@@ -38,6 +38,8 @@ from app.schemas.ticket_assignment import (
 
 from app.services import TicketService
 from app.services.audit_service import AuditService
+from app.services.ticket_prediction_service import TicketPredictionService
+from app.schemas.ticket_prediction import TicketPredictionResponse
 
 
 router = APIRouter(
@@ -426,3 +428,46 @@ def _validated_department_id(
     if department is None or not department.is_active:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Department not found")
     return department.id
+
+
+@router.post(
+    "/{ticket_id}/predict",
+    response_model=TicketPredictionResponse,
+)
+def predict_ticket(
+    ticket_id: str,
+    db: Session = Depends(get_db),
+    session: AuthenticatedSession = Depends(get_current_session),
+):
+    require_role(
+        session,
+        MembershipRole.ORGANIZATION_ADMIN,
+        MembershipRole.MANAGER,
+        MembershipRole.AGENT,
+    )
+    ticket = TicketRepository(db).get_by_id(ticket_id)
+    if ticket is None or ticket.organization_id != session.organization.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+
+    department_name = None
+    if ticket.department_id is not None:
+        department = DepartmentRepository(db).get_in_organization(
+            ticket.department_id,
+            session.organization.id,
+        )
+        department_name = department.name if department is not None else None
+
+    prediction = TicketPredictionService(db).predict(ticket, department_name)
+    AuditService(db).record(
+        organization_id=session.organization.id,
+        actor_id=session.user.id,
+        action="TICKET_PREDICTED",
+        entity_type="PREDICTION",
+        entity_id=str(prediction.id),
+        details={
+            "ticket_id": ticket.id,
+            "priority": prediction.predicted_priority,
+            "confidence": prediction.confidence_score,
+        },
+    )
+    return prediction
