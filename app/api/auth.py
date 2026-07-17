@@ -28,6 +28,7 @@ from app.models import (
 from app.schemas.session import BootstrapRequest, LoginPayload, SessionResponse
 from app.schemas.session import InvitationAcceptance
 from app.services.invitation_service import InvitationService
+from app.services.audit_service import AuditService
 
 
 router = APIRouter(
@@ -94,6 +95,13 @@ def bootstrap(payload: BootstrapRequest, db: Session = Depends(get_db)):
         db.rollback()
         raise
 
+    AuditService(db).record(
+        organization_id=organization.id,
+        actor_id=user.id,
+        action="ORGANIZATION_BOOTSTRAPPED",
+        entity_type="ORGANIZATION",
+        entity_id=organization.id,
+    )
     return create_session_response(user, organization, membership)
 
 
@@ -119,6 +127,13 @@ def login(payload: LoginPayload, db: Session = Depends(get_db)):
 
     user.last_login = datetime.utcnow()
     db.commit()
+    AuditService(db).record(
+        organization_id=organization.id,
+        actor_id=user.id,
+        action="LOGIN_SUCCEEDED",
+        entity_type="USER",
+        entity_id=user.id,
+    )
     return create_session_response(user, organization, membership)
 
 
@@ -140,6 +155,13 @@ def accept_invitation(
     organization = db.get(Organization, membership.organization_id)
     if organization is None or organization.status != OrganizationStatus.ACTIVE:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Organization is unavailable")
+    AuditService(db).record(
+        organization_id=organization.id,
+        actor_id=user.id,
+        action="INVITATION_ACCEPTED",
+        entity_type="USER",
+        entity_id=user.id,
+    )
     return create_session_response(user, organization, membership)
 
 

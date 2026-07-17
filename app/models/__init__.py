@@ -7,6 +7,7 @@ from .organization import OrganizationStatus
 
 from .prediction import Prediction
 from .invitation import Invitation
+from .audit_log import AuditLog
 
 from .user import User
 from .user import UserStatus
@@ -20,6 +21,7 @@ from .ticket import TicketCategory
 __all__ = [
     "Prediction",
     "Invitation",
+    "AuditLog",
 
     "Organization",
     "OrganizationStatus",

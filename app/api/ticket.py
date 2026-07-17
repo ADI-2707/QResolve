@@ -36,6 +36,7 @@ from app.schemas.ticket_assignment import (
 )
 
 from app.services import TicketService
+from app.services.audit_service import AuditService
 
 
 router = APIRouter(
@@ -80,7 +81,15 @@ def create_ticket(
         category=payload.category,
     )
 
-    return service.create(ticket)
+    ticket = service.create(ticket)
+    _record_ticket_event(
+        db,
+        session,
+        action="TICKET_CREATED",
+        ticket=ticket,
+        details={"priority": ticket.priority.value, "category": ticket.category.value},
+    )
+    return ticket
 
 
 @router.get(
@@ -202,8 +211,13 @@ def update_ticket(
 
     ticket = service.update(ticket)
 
-    db.commit()
-    db.refresh(ticket)
+    _record_ticket_event(
+        db,
+        session,
+        action="TICKET_UPDATED",
+        ticket=ticket,
+        details={"updated_fields": sorted(update_data)},
+    )
 
     return ticket
 
@@ -235,7 +249,14 @@ def archive_ticket(
             detail="Access denied",
         )
 
-    return service.archive(ticket_id)
+    archived_ticket = service.archive(ticket_id)
+    _record_ticket_event(
+        db,
+        session,
+        action="TICKET_ARCHIVED",
+        ticket=archived_ticket,
+    )
+    return archived_ticket
 
 
 @router.patch(
@@ -267,10 +288,18 @@ def assign_ticket(
         )
 
     try:
-        return service.assign(
+        assigned_ticket = service.assign(
             ticket_id,
             payload.assignee_id,
         )
+        _record_ticket_event(
+            db,
+            session,
+            action="TICKET_ASSIGNED",
+            ticket=assigned_ticket,
+            details={"assignee_id": assigned_ticket.assigned_to},
+        )
+        return assigned_ticket
 
     except ValueError as error:
         raise HTTPException(
@@ -301,7 +330,15 @@ def claim_ticket(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
 
     try:
-        return service.claim(ticket_id, session.user.id)
+        claimed_ticket = service.claim(ticket_id, session.user.id)
+        _record_ticket_event(
+            db,
+            session,
+            action="TICKET_CLAIMED",
+            ticket=claimed_ticket,
+            details={"assignee_id": claimed_ticket.assigned_to},
+        )
+        return claimed_ticket
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
 
@@ -328,7 +365,7 @@ def resolve_ticket(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
 
     try:
-        return service.resolve(
+        resolved_ticket = service.resolve(
             ticket_id,
             session.user.id,
             may_resolve_any_ticket=session.role in {
@@ -336,5 +373,30 @@ def resolve_ticket(
                 MembershipRole.MANAGER,
             },
         )
+        _record_ticket_event(
+            db,
+            session,
+            action="TICKET_RESOLVED",
+            ticket=resolved_ticket,
+        )
+        return resolved_ticket
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
+
+
+def _record_ticket_event(
+    db: Session,
+    session: AuthenticatedSession,
+    *,
+    action: str,
+    ticket: Ticket,
+    details: dict | None = None,
+) -> None:
+    AuditService(db).record(
+        organization_id=session.organization.id,
+        actor_id=session.user.id,
+        action=action,
+        entity_type="TICKET",
+        entity_id=ticket.id,
+        details=details,
+    )

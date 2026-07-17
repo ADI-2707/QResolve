@@ -7,6 +7,7 @@ from app.db.database import get_db
 from app.models import MembershipRole
 from app.schemas.session import InvitationCreate, InvitationResponse
 from app.services.invitation_service import InvitationService
+from app.services.audit_service import AuditService
 
 
 router = APIRouter(prefix="/invitations", tags=["Invitations"])
@@ -35,6 +36,15 @@ def create_invitation(
         )
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+
+    AuditService(db).record(
+        organization_id=session.organization.id,
+        actor_id=session.user.id,
+        action="INVITATION_CREATED",
+        entity_type="INVITATION",
+        entity_id=invitation.id,
+        details={"email": invitation.email, "role": invitation.role.value},
+    )
 
     return InvitationResponse(
         id=invitation.id,
