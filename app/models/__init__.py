@@ -8,6 +8,7 @@ from .organization import OrganizationStatus
 from .prediction import Prediction
 from .invitation import Invitation
 from .audit_log import AuditLog
+from .comment import Comment
 
 from .user import User
 from .user import UserStatus
@@ -22,6 +23,7 @@ __all__ = [
     "Prediction",
     "Invitation",
     "AuditLog",
+    "Comment",
 
     "Organization",
     "OrganizationStatus",
