@@ -24,6 +24,8 @@ class TicketCreate(BaseModel):
 
     category: TicketCategory = TicketCategory.OTHER
 
+    department_id: str | None = None
+
 
 class TicketUpdate(BaseModel):
 
@@ -46,6 +48,8 @@ class TicketUpdate(BaseModel):
 
     assigned_to: str | None = None
 
+    department_id: str | None = None
+
 
 class TicketResponse(BaseModel):
 
@@ -60,6 +64,8 @@ class TicketResponse(BaseModel):
     created_by: str
 
     assigned_to: str | None
+
+    department_id: str | None
 
     subject: str
 

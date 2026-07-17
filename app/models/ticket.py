@@ -116,6 +116,13 @@ class Ticket(Base):
         nullable=True,
     )
 
+    department_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("departments.id"),
+        nullable=True,
+        index=True,
+    )
+
     resolved_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,

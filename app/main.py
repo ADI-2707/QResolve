@@ -10,6 +10,7 @@ from app.api import (
     invitation_router,
     membership_router,
     comment_router,
+    department_router,
     organization_router,
     ticket_router,
     user_router,
@@ -98,6 +99,10 @@ app.include_router(
 
 app.include_router(
     comment_router,
+)
+
+app.include_router(
+    department_router,
 )
 
 app.include_router(

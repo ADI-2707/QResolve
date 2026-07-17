@@ -23,6 +23,7 @@ from app.repositories import (
     TicketRepository,
     UserRepository,
 )
+from app.repositories.department_repository import DepartmentRepository
 
 from app.schemas.ticket import (
     TicketCreate,
@@ -79,6 +80,11 @@ def create_ticket(
         description=payload.description,
         priority=payload.priority,
         category=payload.category,
+        department_id=_validated_department_id(
+            db,
+            payload.department_id,
+            session.organization.id,
+        ),
     )
 
     ticket = service.create(ticket)
@@ -192,6 +198,13 @@ def update_ticket(
     update_data = payload.model_dump(
         exclude_unset=True,
     )
+
+    if update_data.get("department_id") is not None:
+        update_data["department_id"] = _validated_department_id(
+            db,
+            update_data["department_id"],
+            session.organization.id,
+        )
 
     if session.role == MembershipRole.VIEWER:
         require_role(session, MembershipRole.ORGANIZATION_ADMIN)
@@ -400,3 +413,16 @@ def _record_ticket_event(
         entity_id=ticket.id,
         details=details,
     )
+
+
+def _validated_department_id(
+    db: Session,
+    department_id: str | None,
+    organization_id: str,
+) -> str | None:
+    if department_id is None:
+        return None
+    department = DepartmentRepository(db).get_in_organization(department_id, organization_id)
+    if department is None or not department.is_active:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Department not found")
+    return department.id
