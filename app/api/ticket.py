@@ -3,6 +3,7 @@ from fastapi import (
     Depends,
     HTTPException,
     status,
+    Query,
 )
 
 from sqlalchemy.orm import Session
@@ -14,6 +15,8 @@ from app.db.database import get_db
 from app.models import (
     Ticket,
     MembershipRole,
+    TicketPriority,
+    TicketStatus,
 )
 
 from app.repositories import (
@@ -85,6 +88,11 @@ def create_ticket(
     response_model=TicketListResponse,
 )
 def list_tickets(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=25, ge=1, le=100),
+    ticket_status: TicketStatus | None = Query(default=None, alias="status"),
+    priority: TicketPriority | None = Query(default=None),
+    search: str | None = Query(default=None, min_length=1, max_length=255),
     db: Session = Depends(get_db),
     session: AuthenticatedSession = Depends(get_current_session),
 ):
@@ -93,10 +101,26 @@ def list_tickets(
 
     tickets = service.list_by_organization(
         session.organization.id,
+        ticket_status=ticket_status,
+        priority=priority,
+        search=search,
+        page=page,
+        page_size=page_size,
+    )
+
+    total_items = service.count_by_organization(
+        session.organization.id,
+        ticket_status=ticket_status,
+        priority=priority,
+        search=search,
     )
 
     return TicketListResponse(
         tickets=tickets,
+        page=page,
+        page_size=page_size,
+        total_items=total_items,
+        total_pages=(total_items + page_size - 1) // page_size,
     )
 
 

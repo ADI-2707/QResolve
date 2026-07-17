@@ -43,10 +43,36 @@ class TicketService(BaseService[Ticket]):
     def list_by_organization(
         self,
         organization_id: str,
+        *,
+        ticket_status: TicketStatus | None = None,
+        priority: TicketPriority | None = None,
+        search: str | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
     ) -> list[Ticket]:
 
         return self.repository.list_by_organization(
             organization_id,
+            ticket_status=ticket_status,
+            priority=priority,
+            search=search,
+            page=page,
+            page_size=page_size,
+        )
+
+    def count_by_organization(
+        self,
+        organization_id: str,
+        *,
+        ticket_status: TicketStatus | None = None,
+        priority: TicketPriority | None = None,
+        search: str | None = None,
+    ) -> int:
+        return self.repository.count_by_organization(
+            organization_id,
+            ticket_status=ticket_status,
+            priority=priority,
+            search=search,
         )
 
     def list_by_status(

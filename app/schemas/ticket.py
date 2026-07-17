@@ -81,3 +81,11 @@ class TicketResponse(BaseModel):
 class TicketListResponse(BaseModel):
 
     tickets: list[TicketResponse]
+
+    page: int
+
+    page_size: int
+
+    total_items: int
+
+    total_pages: int
