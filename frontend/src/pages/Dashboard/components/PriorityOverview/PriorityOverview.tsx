@@ -53,7 +53,7 @@ const PriorityOverview = ()=>{
                             className={styles.item}
                         >
 
-                            <Badge variant={priority.type as any}>
+                            <Badge variant={priority.type as "success" | "warning" | "danger" | "info"}>
                                 {priority.name}
                             </Badge>
 

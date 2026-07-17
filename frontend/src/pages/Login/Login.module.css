@@ -1,0 +1,26 @@
+.page {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: var(--space-6);
+}
+
+.card {
+    display: grid;
+    width: min(100%, 28rem);
+    gap: var(--space-4);
+    padding: var(--space-8);
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.card h1, .help, .eyebrow, .error { margin: 0; }
+.eyebrow { color: var(--color-primary-500); font-weight: var(--font-weight-bold); }
+.help { color: var(--color-gray-500); }
+.card label { display: grid; gap: var(--space-2); font-weight: var(--font-weight-medium); }
+.card input { width: 100%; padding: var(--space-3); border: 1px solid var(--color-gray-300); border-radius: var(--radius-md); }
+.card button { padding: var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--color-primary-500); color: var(--color-white); cursor: pointer; font-weight: var(--font-weight-bold); }
+.card button:disabled { cursor: wait; opacity: 0.7; }
+.error { color: var(--color-danger-600); }

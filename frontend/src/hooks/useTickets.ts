@@ -42,7 +42,7 @@ const useTickets = () => {
 
             }
 
-            catch(error){
+            catch{
 
 
                 setError(

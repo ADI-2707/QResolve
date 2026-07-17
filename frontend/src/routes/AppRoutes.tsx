@@ -7,6 +7,7 @@ import MainLayout from "../layouts/MainLayout/MainLayout";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Tickets from "../pages/Tickets/Tickets";
 import Login from "../pages/Login/Login";
+import ProtectedRoute from "./ProtectedRoute";
 
 
 function AppRoutes() {
@@ -23,10 +24,8 @@ function AppRoutes() {
             />
 
 
-            <Route
-                path="/"
-                element={<MainLayout />}
-            >
+            <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<MainLayout />}>
 
                 <Route
                     index
@@ -39,6 +38,7 @@ function AppRoutes() {
                     element={<Tickets />}
                 />
 
+                </Route>
             </Route>
 
 
