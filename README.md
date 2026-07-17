@@ -308,21 +308,6 @@ For a deeper dive beyond this README, see [`docs/architecture/`](docs/architectu
 
 ---
 
-## Version Control
-
-This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification, e.g.:
-
-```
-feat(api): add ticket prediction override endpoint
-fix(auth): correct JWT expiry calculation
-refactor(services): extract membership administration service
-docs: update architecture specification
-test(api): add auth/RBAC coverage
-build(docker): optimize image layers
-```
-
----
-
 ## License
 
 MIT License.
