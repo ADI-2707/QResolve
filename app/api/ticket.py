@@ -7,12 +7,13 @@ from fastapi import (
 
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_session
+from app.core.authorization import AuthenticatedSession, require_role
 from app.db.database import get_db
 
 from app.models import (
     Ticket,
-    User,
+    MembershipRole,
 )
 
 from app.repositories import (
@@ -61,14 +62,15 @@ def get_ticket_service(
 def create_ticket(
     payload: TicketCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    require_role(session, MembershipRole.ORGANIZATION_ADMIN, MembershipRole.MANAGER, MembershipRole.AGENT)
 
     service = get_ticket_service(db)
 
     ticket = Ticket(
-        organization_id=current_user.organization_id,
-        created_by=current_user.id,
+        organization_id=session.organization.id,
+        created_by=session.user.id,
         subject=payload.subject,
         description=payload.description,
         priority=payload.priority,
@@ -84,13 +86,13 @@ def create_ticket(
 )
 def list_tickets(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
 
     service = get_ticket_service(db)
 
     tickets = service.list_by_organization(
-        current_user.organization_id,
+        session.organization.id,
     )
 
     return TicketListResponse(
@@ -105,7 +107,7 @@ def list_tickets(
 def get_ticket(
     ticket_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
 
     service = get_ticket_service(db)
@@ -118,7 +120,7 @@ def get_ticket(
             detail="Ticket not found",
         )
 
-    if ticket.organization_id != current_user.organization_id:
+    if ticket.organization_id != session.organization.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied",
@@ -135,7 +137,7 @@ def update_ticket(
     ticket_id: str,
     payload: TicketUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
 
     service = get_ticket_service(db)
@@ -148,7 +150,7 @@ def update_ticket(
             detail="Ticket not found",
         )
 
-    if ticket.organization_id != current_user.organization_id:
+    if ticket.organization_id != session.organization.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied",
@@ -157,6 +159,15 @@ def update_ticket(
     update_data = payload.model_dump(
         exclude_unset=True,
     )
+
+    if session.role == MembershipRole.VIEWER:
+        require_role(session, MembershipRole.ORGANIZATION_ADMIN)
+    if session.role == MembershipRole.AGENT:
+        if ticket.assigned_to != session.user.id or set(update_data) - {"status"}:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Agents may only update the status of tickets assigned to them",
+            )
 
     for field, value in update_data.items():
         setattr(
@@ -180,8 +191,9 @@ def update_ticket(
 def archive_ticket(
     ticket_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    require_role(session, MembershipRole.ORGANIZATION_ADMIN)
 
     service = get_ticket_service(db)
 
@@ -193,7 +205,7 @@ def archive_ticket(
             detail="Ticket not found",
         )
 
-    if ticket.organization_id != current_user.organization_id:
+    if ticket.organization_id != session.organization.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied",
@@ -210,8 +222,9 @@ def assign_ticket(
     ticket_id: str,
     payload: TicketAssignment,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    session: AuthenticatedSession = Depends(get_current_session),
 ):
+    require_role(session, MembershipRole.ORGANIZATION_ADMIN, MembershipRole.MANAGER)
 
     service = get_ticket_service(db)
 
@@ -223,7 +236,7 @@ def assign_ticket(
             detail="Ticket not found",
         )
 
-    if ticket.organization_id != current_user.organization_id:
+    if ticket.organization_id != session.organization.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied",

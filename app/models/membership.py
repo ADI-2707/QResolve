@@ -16,7 +16,9 @@ from app.db.database import Base
 class MembershipRole(str, Enum):
     PLATFORM_ADMIN = "PLATFORM_ADMIN"
     ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN"
+    MANAGER = "MANAGER"
     AGENT = "AGENT"
+    VIEWER = "VIEWER"
 
 
 class MembershipStatus(str, Enum):

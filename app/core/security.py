@@ -43,6 +43,10 @@ def verify_password(
 
 def create_access_token(
     subject: str,
+    *,
+    organization_id: str | None = None,
+    organization_slug: str | None = None,
+    role: str | None = None,
 ) -> str:
 
     expire = datetime.now(
@@ -55,6 +59,15 @@ def create_access_token(
         "sub": subject,
         "exp": expire,
     }
+
+    if organization_id is not None:
+        payload["organization_id"] = organization_id
+
+    if organization_slug is not None:
+        payload["organization_slug"] = organization_slug
+
+    if role is not None:
+        payload["role"] = role
 
     return jwt.encode(
         payload,
