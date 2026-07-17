@@ -8,20 +8,23 @@ from app.models import (
     TicketStatus,
 )
 
-from app.repositories import TicketRepository
+from app.repositories import (
+    TicketRepository,
+    UserRepository,
+)
 
 from .base_service import BaseService
 
 
-class TicketService(
-    BaseService[Ticket],
-):
+class TicketService(BaseService[Ticket]):
 
     def __init__(
         self,
         repository: TicketRepository,
+        user_repository: UserRepository,
     ):
         super().__init__(repository)
+        self.user_repository = user_repository
 
     def create(
         self,
@@ -68,17 +71,6 @@ class TicketService(
             priority,
         )
 
-    def list_by_assignee(
-        self,
-        organization_id: str,
-        assignee_id: str,
-    ) -> list[Ticket]:
-
-        return self.repository.list_by_assignee(
-            organization_id,
-            assignee_id,
-        )
-
     def search(
         self,
         organization_id: str,
@@ -90,12 +82,44 @@ class TicketService(
             query,
         )
 
+    def assign(
+        self,
+        ticket_id: str,
+        assignee_id: str,
+    ) -> Ticket:
+
+        ticket = self.get(ticket_id)
+
+        if ticket is None:
+            raise ValueError("Ticket not found")
+
+        assignee = self.user_repository.get_by_id(
+            assignee_id,
+        )
+
+        if assignee is None:
+            raise ValueError("User not found")
+
+        if assignee.organization_id != ticket.organization_id:
+            raise ValueError(
+                "User belongs to another organization"
+            )
+
+        ticket.assigned_to = assignee.id
+
+        ticket = self.repository.update(ticket)
+
+        self.repository.db.commit()
+        self.repository.db.refresh(ticket)
+
+        return ticket
+
     def archive(
         self,
         ticket_id: str,
     ) -> Ticket | None:
 
-        ticket = self.get_by_id(ticket_id)
+        ticket = self.get(ticket_id)
 
         if ticket is None:
             return None
@@ -110,7 +134,6 @@ class TicketService(
             )
 
             self.repository.db.commit()
-
             self.repository.db.refresh(
                 ticket,
             )
@@ -120,5 +143,4 @@ class TicketService(
         except SQLAlchemyError:
 
             self.repository.db.rollback()
-
             raise

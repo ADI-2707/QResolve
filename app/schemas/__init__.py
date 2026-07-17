@@ -27,6 +27,8 @@ from .ticket import (
     TicketListResponse,
 )
 
+from .ticket_assignment import TicketAssignment
+
 __all__ = [
     "OrganizationCreate",
     "OrganizationResponse",
@@ -42,4 +44,5 @@ __all__ = [
     "TicketUpdate",
     "TicketResponse",
     "TicketListResponse",
+    "TicketAssignment",
 ]

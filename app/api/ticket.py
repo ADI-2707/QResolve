@@ -8,7 +8,6 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user
-
 from app.db.database import get_db
 
 from app.models import (
@@ -16,13 +15,20 @@ from app.models import (
     User,
 )
 
-from app.repositories import TicketRepository
+from app.repositories import (
+    TicketRepository,
+    UserRepository,
+)
 
 from app.schemas.ticket import (
     TicketCreate,
     TicketListResponse,
     TicketResponse,
     TicketUpdate,
+)
+
+from app.schemas.ticket_assignment import (
+    TicketAssignment,
 )
 
 from app.services import TicketService
@@ -32,6 +38,19 @@ router = APIRouter(
     prefix="/tickets",
     tags=["Tickets"],
 )
+
+
+def get_ticket_service(
+    db: Session,
+) -> TicketService:
+
+    ticket_repository = TicketRepository(db)
+    user_repository = UserRepository(db)
+
+    return TicketService(
+        ticket_repository,
+        user_repository,
+    )
 
 
 @router.post(
@@ -45,9 +64,7 @@ def create_ticket(
     current_user: User = Depends(get_current_user),
 ):
 
-    repository = TicketRepository(db)
-
-    service = TicketService(repository)
+    service = get_ticket_service(db)
 
     ticket = Ticket(
         organization_id=current_user.organization_id,
@@ -70,9 +87,7 @@ def list_tickets(
     current_user: User = Depends(get_current_user),
 ):
 
-    repository = TicketRepository(db)
-
-    service = TicketService(repository)
+    service = get_ticket_service(db)
 
     tickets = service.list_by_organization(
         current_user.organization_id,
@@ -93,21 +108,17 @@ def get_ticket(
     current_user: User = Depends(get_current_user),
 ):
 
-    repository = TicketRepository(db)
-
-    service = TicketService(repository)
+    service = get_ticket_service(db)
 
     ticket = service.get(ticket_id)
 
     if ticket is None:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Ticket not found",
         )
 
     if ticket.organization_id != current_user.organization_id:
-
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied",
@@ -127,21 +138,17 @@ def update_ticket(
     current_user: User = Depends(get_current_user),
 ):
 
-    repository = TicketRepository(db)
-
-    service = TicketService(repository)
+    service = get_ticket_service(db)
 
     ticket = service.get(ticket_id)
 
     if ticket is None:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Ticket not found",
         )
 
     if ticket.organization_id != current_user.organization_id:
-
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied",
@@ -152,14 +159,18 @@ def update_ticket(
     )
 
     for field, value in update_data.items():
-
         setattr(
             ticket,
             field,
             value,
         )
 
-    return service.update(ticket)
+    ticket = service.update(ticket)
+
+    db.commit()
+    db.refresh(ticket)
+
+    return ticket
 
 
 @router.delete(
@@ -172,24 +183,60 @@ def archive_ticket(
     current_user: User = Depends(get_current_user),
 ):
 
-    repository = TicketRepository(db)
-
-    service = TicketService(repository)
+    service = get_ticket_service(db)
 
     ticket = service.get(ticket_id)
 
     if ticket is None:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Ticket not found",
         )
 
     if ticket.organization_id != current_user.organization_id:
-
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied",
         )
 
     return service.archive(ticket_id)
+
+
+@router.patch(
+    "/{ticket_id}/assign",
+    response_model=TicketResponse,
+)
+def assign_ticket(
+    ticket_id: str,
+    payload: TicketAssignment,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    service = get_ticket_service(db)
+
+    ticket = service.get(ticket_id)
+
+    if ticket is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Ticket not found",
+        )
+
+    if ticket.organization_id != current_user.organization_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied",
+        )
+
+    try:
+        return service.assign(
+            ticket_id,
+            payload.assignee_id,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error),
+        )
