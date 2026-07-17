@@ -61,7 +61,7 @@ const TicketTable = () => {
 
                     <span>ID</span>
                     <span>Subject</span>
-                    <span>Type</span>
+                    <span>Category</span>
                     <span>Priority</span>
                     <span>Status</span>
 
@@ -89,17 +89,17 @@ const TicketTable = () => {
 
 
                             <span>
-                                {ticket.type}
+                                {ticket.category.replace("_", " ")}
                             </span>
 
 
                             <Badge
                                 variant={
-                                    ticket.priority === "Critical"
+                                    ticket.priority === "CRITICAL"
                                     ?
                                     "danger"
                                     :
-                                    ticket.priority === "High"
+                                    ticket.priority === "HIGH"
                                     ?
                                     "warning"
                                     :
@@ -107,13 +107,13 @@ const TicketTable = () => {
                                 }
                             >
 
-                                {ticket.priority}
+                                {ticket.priority.toLowerCase()}
 
                             </Badge>
 
 
                             <span>
-                                {ticket.status}
+                                {ticket.status.replace("_", " ").toLowerCase()}
                             </span>
 
 

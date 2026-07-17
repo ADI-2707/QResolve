@@ -36,11 +36,8 @@ const useTickets = () => {
                 setLoading(true);
 
 
-                const data =
-                await getTickets();
-
-
-                setTickets(data);
+                const data = await getTickets();
+                setTickets(data.tickets);
 
 
             }
