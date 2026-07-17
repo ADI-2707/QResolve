@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
+import secrets
 
 from argon2 import PasswordHasher
 from jose import jwt
@@ -11,6 +13,14 @@ from app.core.config import (
 
 
 PASSWORD_HASHER = PasswordHasher()
+
+
+def new_secure_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def hash_token(token: str) -> str:
+    return sha256(token.encode("utf-8")).hexdigest()
 
 
 def hash_password(

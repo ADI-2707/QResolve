@@ -13,7 +13,8 @@ from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
 from app.api.dependencies import get_current_session
 from app.core.authorization import AuthenticatedSession
-from app.core.security import create_access_token, hash_password, verify_password
+from app.core.security import hash_password, verify_password
+from app.core.sessions import create_session_response
 
 from app.models import (
     Membership,
@@ -25,6 +26,8 @@ from app.models import (
     UserStatus,
 )
 from app.schemas.session import BootstrapRequest, LoginPayload, SessionResponse
+from app.schemas.session import InvitationAcceptance
+from app.services.invitation_service import InvitationService
 
 
 router = APIRouter(
@@ -91,7 +94,7 @@ def bootstrap(payload: BootstrapRequest, db: Session = Depends(get_db)):
         db.rollback()
         raise
 
-    return _session_response(user, organization, membership)
+    return create_session_response(user, organization, membership)
 
 
 @router.post("/login", response_model=SessionResponse)
@@ -116,7 +119,28 @@ def login(payload: LoginPayload, db: Session = Depends(get_db)):
 
     user.last_login = datetime.utcnow()
     db.commit()
-    return _session_response(user, organization, membership)
+    return create_session_response(user, organization, membership)
+
+
+@router.post("/invitations/accept", response_model=SessionResponse)
+def accept_invitation(
+    payload: InvitationAcceptance,
+    db: Session = Depends(get_db),
+):
+    try:
+        user, membership = InvitationService(db).accept(
+            token=payload.token,
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+            password=payload.password,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
+
+    organization = db.get(Organization, membership.organization_id)
+    if organization is None or organization.status != OrganizationStatus.ACTIVE:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Organization is unavailable")
+    return create_session_response(user, organization, membership)
 
 
 @router.get(
@@ -135,17 +159,3 @@ def get_me(
         "status": session.user.status,
         "role": session.role,
     }
-
-
-def _session_response(user: User, organization: Organization, membership: Membership) -> SessionResponse:
-    return SessionResponse(
-        access_token=create_access_token(
-            user.id,
-            organization_id=organization.id,
-            organization_slug=organization.slug,
-            role=membership.role.value,
-        ),
-        organization_id=organization.id,
-        organization_slug=organization.slug,
-        role=membership.role.value,
-    )

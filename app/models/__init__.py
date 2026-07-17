@@ -6,6 +6,7 @@ from .organization import Organization
 from .organization import OrganizationStatus
 
 from .prediction import Prediction
+from .invitation import Invitation
 
 from .user import User
 from .user import UserStatus
@@ -18,6 +19,7 @@ from .ticket import TicketCategory
 
 __all__ = [
     "Prediction",
+    "Invitation",
 
     "Organization",
     "OrganizationStatus",
