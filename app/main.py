@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from app.api import (
     auth_router,
     audit_router,
+    analytics_router,
     invitation_router,
     membership_router,
     comment_router,
@@ -87,6 +88,10 @@ app.include_router(
 
 app.include_router(
     audit_router,
+)
+
+app.include_router(
+    analytics_router,
 )
 
 app.include_router(

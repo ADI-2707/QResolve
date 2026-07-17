@@ -1,5 +1,6 @@
 from .auth import router as auth_router
 from .audit import router as audit_router
+from .analytics import router as analytics_router
 from .invitation import router as invitation_router
 from .membership import router as membership_router
 from .comment import router as comment_router
@@ -11,6 +12,7 @@ from .user import router as user_router
 __all__ = [
     "auth_router",
     "audit_router",
+    "analytics_router",
     "invitation_router",
     "membership_router",
     "comment_router",
