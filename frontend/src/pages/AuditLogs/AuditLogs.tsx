@@ -28,7 +28,13 @@ const AuditLogs = () => {
         }
     }, []);
 
-    useEffect(() => { void load(page); }, [load, page]);
+    useEffect(() => {
+        const runLoad = async () => {
+            await load(page);
+        };
+
+        void runLoad();
+    }, [load, page]);
 
     const formatAction = (action: string) =>
         action.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());

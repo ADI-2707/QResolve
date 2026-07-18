@@ -57,7 +57,13 @@ const Members = () => {
         }
     }, []);
 
-    useEffect(() => { void load(); }, [load]);
+    useEffect(() => {
+        const runLoad = async () => {
+            await load();
+        };
+
+        void runLoad();
+    }, [load]);
 
     const runAction = async (action: () => Promise<Membership>) => {
         setActionError(null);
