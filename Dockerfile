@@ -17,4 +17,7 @@ COPY . .
 
 EXPOSE 8000
 
+# Initialize database on startup
+RUN python -m app.create_db || true
+
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
