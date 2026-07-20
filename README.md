@@ -15,7 +15,11 @@ The system is made up of four components:
 - **Machine Learning Engine** — scikit-learn / TF-IDF based priority classifier
 - **Database** — SQLAlchemy ORM (SQLite by default, PostgreSQL-ready)
 
+
 Design principles (see [`docs/architecture/`](docs/architecture) for the full specs):
+
+Design principles:
+
 
 - **Multi-tenancy** — organizations can never access another organization's data; isolation is enforced in the backend on every query.
 - **Enterprise-first** — the first experience is authentication, not marketing; every feature is built with security, auditing, and maintainability in mind.
@@ -32,7 +36,10 @@ Design principles (see [`docs/architecture/`](docs/architecture) for the full sp
 - Threaded comments per ticket
 
 ### Multi-tenant organizations
+
 - Organization creation, lookup by ID or slug
+- Organization creation via **bootstrap** flow (new organization + first admin account)
+- Organization lookup by ID or slug
 - Memberships with role-based access: `PLATFORM_ADMIN`, `ORGANIZATION_ADMIN`, `MANAGER`, `AGENT`, `VIEWER`
 - Email-based invitations with token-hashed, expiring invite links
 - Suspend / activate members, change member roles
@@ -41,6 +48,7 @@ Design principles (see [`docs/architecture/`](docs/architecture) for the full sp
 - Argon2 password hashing
 - JWT access tokens (org ID, org slug, and role embedded in the token claims)
 - Organization bootstrap flow (create org + first admin) and invitation-acceptance flow
+- Organization bootstrap flow and invitation-acceptance flow
 - Role-based authorization enforced at the endpoint level (`require_role`)
 
 ### AI-powered prediction
@@ -56,6 +64,12 @@ Design principles (see [`docs/architecture/`](docs/architecture) for the full sp
 ### Frontend
 - React + TypeScript SPA (Vite) with a dedicated design-token system (colors, spacing, typography)
 - Login page, Dashboard (stats cards, priority overview, recent tickets), Tickets page with filtering
+- Login page with "Create organization" button
+- Organization bootstrap page (create org + first admin account)
+- Dashboard (stats cards, priority overview, recent tickets)
+- Tickets page with filtering and management
+- Members page for invitation and role management
+- Audit logs page for security tracking
 - Shared UI component library (Button, Card, Badge, Input, Navbar, Sidebar)
 
 ---
@@ -106,6 +120,12 @@ QResolve/
 │
 ├── alembic/                     # database migrations
 ├── artifacts/                   # trained model + vectorizer + encoders (.pkl)
+│   ├── customer_satisfaction_model.pkl
+│   ├── tfidf_vectorizer.pkl
+│   ├── priority_encoder.pkl
+│   └── metadata_feature_names.pkl
+│
+>>>>>>> feature/frontend-integration
 ├── data/                        # raw / processed datasets
 ├── processed/                   # cached train/test splits
 ├── notebook/                    # EDA -> validation -> feature engineering -> training -> evaluation -> inference
@@ -117,6 +137,11 @@ QResolve/
 │       ├── components/            # shared UI + layout components
 │       ├── services/               # API client (Axios) + ticket service
 │       ├── hooks/, layouts/, routes/, styles/, types/
+│       ├── pages/                # Login, Bootstrap, Dashboard, Tickets, Members, AuditLogs
+│       ├── components/            # shared UI + layout components
+│       ├── services/               # API client (Axios) + business services
+│       ├── hooks/, routes/, styles/, types/
+>>>>>>> feature/frontend-integration
 ├── src/                          # standalone data pipeline utilities (loader, validator, config)
 ├── tests/                        # pytest suite (API, auth/RBAC, services, repositories)
 ├── logs/
@@ -125,6 +150,7 @@ QResolve/
 ├── alembic.ini
 ├── requirements.txt
 └── .env.example
+└── README.md
 ```
 
 ---
@@ -145,7 +171,11 @@ cd QResolve
 python -m venv .venv
 
 # Windows
+
 .venv\Scripts\activate
+
+.venv\Scripts\Activate.ps1
+
 # Linux / macOS
 source .venv/bin/activate
 
@@ -154,7 +184,11 @@ pip install -r requirements.txt
 cp .env.example .env   # then edit values (SECRET_KEY especially)
 ```
 
+
 Initialize the database (or use Alembic migrations — see below):
+
+Initialize the database (or use Alembic migrations):
+
 
 ```bash
 python -m app.create_db
@@ -254,10 +288,80 @@ The full modeling journey — EDA, dataset validation, feature engineering, trai
 ---
 
 ## Testing
+=======
+Frontend will typically run at `http://127.0.0.1:5173`
+
+Other frontend scripts: `npm run build`, `npm run lint`, `npm run preview`.
+
+---
+
+## Organization Bootstrap Flow
+
+To create a new organization and set up the first admin account:
+
+1. Navigate to the login page: `http://127.0.0.1:5173/login`
+2. Click **"Create organization"** button
+3. Fill in the bootstrap form:
+   - Organization name
+   - Admin first/last name
+   - Admin email
+   - Admin password
+4. Click **"Create organization"**
+5. You will be automatically logged in and redirected to the dashboard
+
+---
+
+## Configuration
+
+Environment variables (`.env`, based on `.env.example`):
+
+```env
+API_TITLE="QResolve API"
+API_DESCRIPTION="AI-powered Support Ticket Priority Prediction API"
+API_VERSION=1.0.0
+
+HOST=0.0.0.0
+PORT=8000
+
+LOG_LEVEL=INFO
+
+DATABASE_URL=sqlite:///./qresolve.db
+
+SECRET_KEY=your-secret-key-here
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+To use PostgreSQL instead of SQLite, set `DATABASE_URL` to a Postgres DSN (e.g. `postgresql+psycopg2://user:password@host:5432/qresolve`) — the `psycopg2-binary` driver is already included in `requirements.txt`.
+
+**Always change `SECRET_KEY`** before deploying anywhere beyond local development.
+
+---
+
+## API Overview
+
+All resource endpoints are mounted under the `/api/v1` prefix. The legacy top-level `/predict` and `/predictions` endpoints from the original single-tenant prototype are still present at the app root for backward compatibility.
+
+| Router | Prefix | Key Endpoints |
+|---|---|---|
+| Auth | `/api/v1/auth` | `POST /bootstrap`, `POST /login`, `POST /invitations/accept`, `GET /me` |
+| Organizations | `/api/v1/organizations` | `POST /`, `GET /`, `GET /{organization_id}`, `GET /slug/{slug}` |
+| Tickets | `/api/v1/tickets` | `POST /`, `GET /`, `GET /{id}`, `PATCH /{id}`, `POST /{id}/predict`, `POST /{id}/predictions/{prediction_id}/override` |
+| Members | `/api/v1/memberships` | `GET /`, `PATCH /{id}/role`, `POST /{id}/suspend`, `POST /{id}/activate` |
+| Invitations | `/api/v1/invitations` | `POST /` |
+| Audit | `/api/v1/audit` | `GET /` |
+| Analytics | `/api/v1/analytics` | `GET /tickets/overview` |
+
+Full request/response contracts are documented in the interactive API docs (`/docs`).
+
+---
+
+## Running Tests
 
 ```bash
 python -m pytest -v
 ```
+
 
 The suite (`tests/`) covers the API surface, auth/RBAC, ticket prediction service, ticket repository, membership administration, comments, departments, audit logging, analytics, and API versioning.
 
@@ -267,6 +371,30 @@ The suite (`tests/`) covers the API surface, auth/RBAC, ticket prediction servic
 
 ```bash
 docker build -t qresolve-api .
+=======
+---
+
+## Docker
+
+Build and run with Docker Compose:
+
+```bash
+docker-compose up --build
+```
+
+---
+
+## License
+
+MIT
+
+---
+
+## Contributing
+
+Contributions welcome! Please submit a pull request with a clear description of your changes.
+
+```bash
 docker run -p 8000:8000 qresolve-api
 ```
 

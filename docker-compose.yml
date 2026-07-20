@@ -1,36 +1,44 @@
-version: "3.9"
-
 services:
 
   qresolve-api:
-
-    build: .
-
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: qresolve-api
-
-
     ports:
       - "8000:8000"
-
-
     volumes:
       - .:/app
-
-
+    environment:
+      - DATABASE_URL=sqlite:///./qresolve.db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-this}
+      - LOG_LEVEL=INFO
+      - HOST=0.0.0.0
+      - PORT=8000
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:8000/health"
-        ]
-
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
-
       timeout: 10s
-
       retries: 3
-
-
     restart: unless-stopped
+    networks:
+      - qresolve-network
+
+  qresolve-frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: qresolve-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://qresolve-api:8000/api/v1
+    depends_on:
+      - qresolve-api
+    restart: unless-stopped
+    networks:
+      - qresolve-network
+
+networks:
+  qresolve-network:
+    driver: bridge

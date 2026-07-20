@@ -48,6 +48,21 @@ notebook/
 # Tests
 tests/
 
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+
 # Processed datasets
 processed/
 

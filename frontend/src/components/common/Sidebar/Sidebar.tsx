@@ -16,6 +16,16 @@ const Sidebar = () => {
         {
             label:"Tickets",
             path:"/tickets"
+        },
+
+        {
+            label:"Members",
+            path:"/members"
+        },
+
+        {
+            label:"Audit Logs",
+            path:"/audit"
         }
 
     ];
