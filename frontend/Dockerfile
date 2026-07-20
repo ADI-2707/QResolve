@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app/frontend
 
@@ -12,7 +12,7 @@ COPY frontend/ .
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -21,9 +21,6 @@ RUN npm install -g serve
 
 # Copy built app from builder
 COPY --from=builder /app/frontend/dist ./dist
-
-# Copy frontend public assets if needed
-COPY frontend/public ./public 2>/dev/null || true
 
 EXPOSE 5173
 
