@@ -46,7 +46,7 @@ const Login = () => {
             <form className={styles.card} onSubmit={submit}>
                 <p className={styles.eyebrow}>QResolve</p>
                 <h1>Sign in to your workspace</h1>
-                <p className={styles.help}>Use the organization slug and account credentials supplied by your administrator.</p>
+                <p className={styles.help}>Use the organization slug and account credentials supplied by your administrator. If you are starting a new organization, create one first.</p>
 
                 <label>
                     Organization slug
@@ -63,6 +63,7 @@ const Login = () => {
 
                 {error && <p className={styles.error} role="alert">{error}</p>}
                 <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Signing in…" : "Sign in"}</button>
+                <button type="button" className={styles.secondaryButton} onClick={() => navigate("/bootstrap")}>Create organization</button>
             </form>
         </main>
     );

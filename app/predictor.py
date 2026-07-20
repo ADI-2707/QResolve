@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MODELS_DIR = BASE_DIR / "artifacts"
 
 
-model = joblib.load(MODELS_DIR / "random_forest.pkl")
+model = joblib.load(MODELS_DIR / "customer_satisfaction_model.pkl")
 
 tfidf = joblib.load(
     MODELS_DIR / "tfidf_vectorizer.pkl"

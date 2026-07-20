@@ -7,6 +7,7 @@ import MainLayout from "../layouts/MainLayout/MainLayout";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Tickets from "../pages/Tickets/Tickets";
 import Login from "../pages/Login/Login";
+import Bootstrap from "../pages/Bootstrap/Bootstrap";
 import Members from "../pages/Members/Members";
 import AuditLogs from "../pages/AuditLogs/AuditLogs";
 import ProtectedRoute from "./ProtectedRoute";
@@ -24,7 +25,10 @@ function AppRoutes() {
                 path="/login"
                 element={<Login />}
             />
-
+            <Route
+                path="/bootstrap"
+                element={<Bootstrap />}
+            />
 
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<MainLayout />}>

@@ -22,7 +22,13 @@
 .card label { display: grid; gap: var(--space-2); font-weight: var(--font-weight-medium); }
 .card input { width: 100%; padding: var(--space-3); border: 1px solid var(--color-gray-300); border-radius: var(--radius-md); }
 .card button { padding: var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--color-primary-500); color: var(--color-white); cursor: pointer; font-weight: var(--font-weight-bold); }
-.secondaryButton { padding: var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--color-gray-100); color: var(--color-gray-900); cursor: pointer; font-weight: var(--font-weight-bold); }
-.secondaryButton:hover { background: var(--color-gray-200); }
 .card button:disabled { cursor: wait; opacity: 0.7; }
 .error { color: var(--color-danger-600); }
+.linkButton { background: transparent; color: var(--color-primary-500); border: none; text-align: center; padding: 0; cursor: pointer; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); display: inline-block; width: 100%; position: relative; }
+.linkButton::after { content: ""; display: inline-block; margin-left: 0.25rem; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.linkButton:hover::after { content: "→"; animation: slideArrow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+@keyframes slideArrow {
+    from { transform: translateX(-6px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
